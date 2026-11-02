@@ -50,15 +50,36 @@ preset_seed() {
     done < <(preset_files) | sed -n 1p   # sed reads all input: no SIGPIPE under pipefail
 }
 
-# Prints the image path of the first desktop's wallpaper (org.kde.image plugin).
+# Prints the image path of the current desktop's wallpaper (org.kde.image plugin), preferring
+# the primary screen. Asks plasmashell first: appletsrc can keep orphaned entries from
+# desktops that no longer exist, pointing at old (even deleted) images.
 current_wallpaper() {
-    [ -f "$APPLETSRC" ] || return 1
     local img
-    img="$(awk '
-        /^\[Containments\]\[[0-9]+\]\[Wallpaper\]\[org\.kde\.image\]\[General\]$/ { grab = 1; next }
-        /^\[/ { grab = 0 }
-        grab && /^Image=/ { sub(/^Image=/, ""); print; exit }
-    ' "$APPLETSRC")"
+    img="$(qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
+        var d = desktops(), out = "";
+        for (var i = 0; i < d.length; i++) {
+            d[i].currentConfigGroup = ["Wallpaper", "org.kde.image", "General"];
+            var img = d[i].readConfig("Image");
+            if (img && (out === "" || d[i].screen === 0)) out = img;
+        }
+        print(out);' 2>/dev/null || true)"
+    if [ -z "$img" ] && [ -f "$APPLETSRC" ]; then
+        # Fallback without a running plasmashell: only trust containments that still exist
+        # as desktops (their own section declares a desktop plugin).
+        img="$(awk '
+            FNR == NR {
+                if (match($0, /^\[Containments\]\[[0-9]+\]$/)) { id = $0; sub(/^\[Containments\]\[/, "", id); sub(/\]$/, "", id) }
+                else if (/^\[/) { id = "" }
+                if (id != "" && /^plugin=org\.kde\.(plasma\.folder|desktopcontainer)$/) desk[id] = 1
+                next
+            }
+            match($0, /^\[Containments\]\[[0-9]+\]\[Wallpaper\]\[org\.kde\.image\]\[General\]$/) {
+                id = $0; sub(/^\[Containments\]\[/, "", id); sub(/\].*/, "", id); grab = (id in desk); next
+            }
+            /^\[/ { grab = 0 }
+            grab && /^Image=/ { sub(/^Image=/, ""); print; exit }
+        ' "$APPLETSRC" "$APPLETSRC")"
+    fi
     img="${img#file://}"
     [ -n "$img" ] || return 1
     printf '%s\n' "$img"
