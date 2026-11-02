@@ -65,7 +65,7 @@ terminals keep the old one.
 ### Packages installed
 
 | Purpose | Package | Source |
-|---|---|---|---|
+|---|---|---|
 | Palette generation | `matugen` | official repos |
 | Application style | `kvantum` | official repos |
 | Font (Nerd Font variant, as used in the original video) | `ttf-jetbrains-mono-nerd` | official repos |
@@ -186,7 +186,7 @@ edited. `--remove-packages` never removes packages you had before installing Pla
 ## How it works
 
 | Component | Source | How it gets colors |
-|---|---|---|---|
+|---|---|---|
 | Color scheme | `themes/mystical/templates/plasmonk.colors` | matugen template |
 | Plasma style | `themes/mystical/plasma/Plasmonk/` | KSvg `ColorScheme-*` classes, follows the color scheme |
 | Window decoration | `themes/mystical/aurorae/` + `templates/aurorae/` | matugen template (buttons only; the frame is neutral) |

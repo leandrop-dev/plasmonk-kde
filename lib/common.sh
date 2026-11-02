@@ -106,6 +106,11 @@ kconfig() {
     "$tool" "${args[@]}" --group "$path" "$@"
 }
 
+# Konsole's default terminal shortcut, which Plasmonk gives to Ghostty, as text and as the Qt key
+# code KDE's shortcut daemon takes over D-Bus (Ctrl 0x04000000 + Alt 0x08000000 + T 0x54).
+TERMINAL_SHORTCUT="Ctrl+Alt+T"
+TERMINAL_KEY=201326676
+
 # Sets the keys of a global shortcut in the running session ($1 = desktop file id, $2 = action,
 # $3 = friendly name, $4 = GVariant key list such as "[]" or "[([201326676],)]"). KDE's shortcut
 # daemon keeps its own copy in memory and would write it back over kglobalshortcutsrc.

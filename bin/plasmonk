@@ -15,8 +15,6 @@ DEFAULT_OPACITY="0.63"   # translucency of title bars, windows and terminals; se
 AURORAE_BUTTONS=(close maximize restore minimize keepabove keepbelow alldesktops)
 CURSOR_THEME="Bibata-Modern-Ice"
 ICON_THEME="yet-another-monochrome-icon-set"   # YAMIS, from the upstream README
-TERMINAL_SHORTCUT="Ctrl+Alt+T"
-TERMINAL_KEY=201326676   # the same as a Qt key code (Ctrl 0x04000000 + Alt 0x08000000 + T 0x54)
 
 usage() {
     cat <<'EOF'
@@ -466,7 +464,6 @@ cmd_setup() {
     info "Deploying theme files"
     deploy_plasma_style "$(state_get menus || true)"
 
-    rm -rf "$AURORAE_DIR"
     deploy_aurorae
 
     mkdir -p "$KVANTUM_DIR" "$ROFI_DIR"

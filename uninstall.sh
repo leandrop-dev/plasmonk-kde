@@ -230,7 +230,7 @@ kbuildsycoca6 >/dev/null 2>&1 || true
 # Hand Ctrl+Alt+T back to Konsole in the running session too, when it had its default before.
 if [ -z "$(kconfig kreadconfig6 kglobalshortcutsrc "services][org.kde.konsole.desktop" --key _launch)" ]; then
     set_live_shortcut com.mitchellh.ghostty.desktop _launch Ghostty "[]" || true
-    set_live_shortcut org.kde.konsole.desktop _launch Konsole "[([201326676],)]" ||
+    set_live_shortcut org.kde.konsole.desktop _launch Konsole "[([$TERMINAL_KEY],)]" ||
         warn "Could not update shortcuts in the running session; Ctrl+Alt+T returns to Konsole after next login"
 fi
 
