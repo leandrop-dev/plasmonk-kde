@@ -1228,42 +1228,42 @@
     <path
        id="tooltip-normal-left"
        d="m 115,524.99992 h 5 v 48 h -5 z"
-       style="opacity:0.8;fill:#101010;fill-opacity:1;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#101010;fill-opacity:1;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="tooltip-normal-topleft"
        d="m 120,519.99992 -4.9989,3e-4 -10e-4,5 h 5 z"
-       style="opacity:0.8;fill:#1e1e20;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#1e1e20;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="tooltip-normal-top"
        d="m 168,519.99992 v 5 h -48 v -5 z"
-       style="opacity:0.8;fill:#101010;fill-opacity:1;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#101010;fill-opacity:1;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="tooltip-normal-topright"
        d="m 173,524.99992 -3e-4,-4.9989 -5,-0.001 v 5 z"
-       style="opacity:0.8;fill:#1e1e20;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#1e1e20;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="tooltip-normal-right"
        d="m 172.99985,524.99992 h -5 v 48 l 5,-3e-4 z"
-       style="opacity:0.8;fill:#101010;fill-opacity:1;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#101010;fill-opacity:1;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="tooltip-normal-bottomright"
        d="m 167.9998,577.99992 4.9989,-3e-4 10e-4,-5 h -5 z"
-       style="opacity:0.8;fill:#323234;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#323234;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="tooltip-normal-bottom"
        d="m 120.00075,577.99992 3e-4,-5 h 48 l -3e-4,5 z"
-       style="opacity:0.8;fill:#101010;fill-opacity:1;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#101010;fill-opacity:1;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="tooltip-normal-bottomleft"
        d="m 115.0005,572.99992 3e-4,4.9989 5,10e-4 v -5 z"
-       style="opacity:0.8;fill:#1e1e20;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#1e1e20;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <rect
        id="tooltip-normal"
@@ -1271,7 +1271,7 @@
        y="525"
        width="48"
        height="48"
-       style="opacity:0.8;fill:#101010;fill-opacity:1;fill-rule:evenodd" />
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#101010;fill-opacity:1;fill-rule:evenodd" />
     <g
        id="tooltip-shadow-top"
        transform="translate(172.49994,-356.99994)"
@@ -1469,7 +1469,7 @@
        y="520"
        width="40"
        height="40"
-       style="opacity:0.75;fill:#161616;fill-opacity:1"
+       style="opacity:@PLASMONK_OPACITY@;fill:#161616;fill-opacity:1"
        x="0" />
   </g>
   <g
@@ -3507,42 +3507,42 @@
     <path
        id="menu-normal-left"
        d="m 0,275 h 5 v 48 H 0 Z"
-       style="color:#000000;opacity:0.8;fill:#121212;fill-opacity:1;fill-rule:evenodd"
+       style="color:#000000;opacity:@PLASMONK_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-topleft"
        d="M 5,270 H 0.0011 l -0.001,5 h 5 z"
-       style="color:#000000;opacity:0.75;fill:#1e1e20;fill-rule:evenodd"
+       style="color:#000000;opacity:@PLASMONK_MENU_OPACITY@;fill:#1e1e20;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-top"
        d="m 53.0003,270 v 5 h -48 v -5 z"
-       style="opacity:0.8;fill:#121212;fill-opacity:1;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-topright"
        d="m 58,275 -3e-4,-4.9989 -5,-0.001 v 5 z"
-       style="opacity:0.75;fill:#1e1e20;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#1e1e20;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-right"
        d="m 57.9998,275 h -5 v 48 h 5 z"
-       style="opacity:0.8;fill:#121212;fill-opacity:1;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-bottomright"
        d="m 52.9998,328 h 4.9989 l 10e-4,-5 h -5 z"
-       style="opacity:0.75;fill:#323234;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#323234;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-bottom"
        d="m 5.00075,328 3e-4,-5 h 48 l -3e-4,5 z"
-       style="opacity:0.8;fill:#121212;fill-opacity:1;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-bottomleft"
        d="m 4e-4,323 3e-4,4.9989 5,0.001 v -5 z"
-       style="opacity:0.75;fill:#1e1e20;fill-rule:evenodd"
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#1e1e20;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <rect
        id="menu-normal"
@@ -3550,7 +3550,7 @@
        y="275"
        width="48"
        height="48"
-       style="opacity:0.8;fill:#121212;fill-opacity:1;fill-rule:evenodd" />
+       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd" />
     <path
        id="menu-shadow-left"
        d="m 65.00005,275.0001 v 60 h 5 v -60 z"

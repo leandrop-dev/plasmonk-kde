@@ -203,7 +203,7 @@ case ":$PATH:" in
 *) warn "$(dirname "$PLASMONK_BIN_LINK") is not in your PATH; run plasmonk as $PLASMONK_BIN_LINK" ;;
 esac
 
-[ "$OPAQUE" -eq 0 ] || state_set menus opaque
+[ "$OPAQUE" -eq 0 ] || state_set menus 1.00
 "$PLASMONK_BIN_LINK" setup
 
 info "Enabling the wallpaper watcher"

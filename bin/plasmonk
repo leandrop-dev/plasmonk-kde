@@ -12,6 +12,7 @@ TEMPLATES="$THEME_SRC/templates"
 PRESETS_FILE="$ROOT/presets.conf"
 DEFAULT_PRESET="blue"
 DEFAULT_OPACITY="0.63"   # translucency of title bars, windows and terminals; see `plasmonk opacity`
+DEFAULT_MENU_OPACITY="0.80"   # popups, menus and tooltips (upstream value); see `plasmonk menus`
 AURORAE_BUTTONS=(close maximize restore minimize keepabove keepbelow alldesktops)
 CURSOR_THEME="Bibata-Modern-Ice"
 ICON_THEME="yet-another-monochrome-icon-set"   # YAMIS, from the upstream README
@@ -29,7 +30,8 @@ Usage: plasmonk <command> [options]
                               Remembered for later wallpaper changes; implies --wallpaper
   wallpaper-colors [PATH]     List the candidate colors of the current wallpaper (or PATH)
   presets                     List presets
-  menus opaque|translucent    Make Plasma popups/menus opaque or restore translucency
+  menus [VALUE]               Show or set the translucency of popups, menus and tooltips:
+                              0.20 .. 1.00, default 0.80; opaque = 1.00, translucent = 0.80
   opacity [VALUE]             Show or set the translucency of title bars, windows, terminals
                               and app themes: 0.20 (see-through) .. 1.00 (solid), default 0.63
   panels save [FILE]          Save the current panels and their widgets as a layout script
@@ -186,21 +188,45 @@ render() {
 
 # ---------- translucency ----------
 
-# One value for every translucent surface Plasmonk draws: title bars, Kvantum window
-# backgrounds, terminals and app themes. Templates carry @PLASMONK_OPACITY@ (e.g. 0.63) and
-# @PLASMONK_ALPHA@ (the same as two hex digits, e.g. a1), filled in after rendering.
+# Two values. `plasmonk opacity` covers title bars, Kvantum window backgrounds, terminals and app
+# themes: @PLASMONK_OPACITY@ (e.g. 0.63) and @PLASMONK_ALPHA@ (the same as two hex digits, e.g.
+# a1). `plasmonk menus` covers popups, menus and tooltips: @PLASMONK_MENU_OPACITY@, and
+# @PLASMONK_TOOLTIP_OPACITY@ for Plasma tooltips, which upstream draws 0.10 more solid than popups.
+# Templates and the Plasma style carry them; they are filled in when deployed or rendered.
 current_opacity() {
     local o
     o="$(state_get opacity)"
     printf '%s\n' "${o:-$DEFAULT_OPACITY}"
 }
 
+current_menu_opacity() {
+    case "$(state_get menus)" in
+    opaque) echo 1.00 ;;   # values from before menus took a number
+    "" | translucent) echo "$DEFAULT_MENU_OPACITY" ;;
+    *) state_get menus ;;
+    esac
+}
+
+# Prints VALUE ($1) as 0.NN if it is a number from 0.20 to 1.00, else fails.
+parse_opacity() {
+    [[ "$1" =~ ^(0?\.[0-9]{1,2}|1(\.0{1,2})?)$ ]] && awk -v o="$1" 'BEGIN { exit !(o >= 0.2) }' || return 1
+    awk -v o="$1" 'BEGIN { printf "%.2f\n", o }'
+}
+
+# Prints the sed script that fills every translucency placeholder.
+opacity_script() {
+    local o m
+    o="$(current_opacity)" m="$(current_menu_opacity)"
+    awk -v o="$o" -v m="$m" 'BEGIN {
+        t = m + 0.1; if (t > 1) t = 1
+        printf "s/@PLASMONK_OPACITY@/%s/g; s/@PLASMONK_ALPHA@/%02x/g; ", o, int(o * 255 + 0.5)
+        printf "s/@PLASMONK_MENU_OPACITY@/%s/g; s/@PLASMONK_TOOLTIP_OPACITY@/%.2f/g\n", m, t
+    }'
+}
+
 # Fills the translucency placeholders in file $1, in place.
 fill_opacity() {
-    local o a
-    o="$(current_opacity)"
-    a="$(awk -v o="$o" 'BEGIN { printf "%02x", int(o * 255 + 0.5) }')"
-    sed -i --follow-symlinks -e "s/@PLASMONK_OPACITY@/$o/g" -e "s/@PLASMONK_ALPHA@/$a/g" -- "$1"
+    sed -i --follow-symlinks -e "$(opacity_script)" -- "$1"
 }
 
 # Copies the Aurorae decoration (title bar and frame) with the current translucency.
@@ -216,10 +242,8 @@ cmd_opacity() {
         return
     fi
     local o
-    if ! [[ "$1" =~ ^(0?\.[0-9]{1,2}|1(\.0{1,2})?)$ ]] || ! awk -v o="$1" 'BEGIN { exit !(o >= 0.2) }'; then
+    o="$(parse_opacity "$1")" ||
         die "Usage: plasmonk opacity [VALUE], VALUE from 0.20 to 1.00 (default $DEFAULT_OPACITY)"
-    fi
-    o="$(awk -v o="$1" 'BEGIN { printf "%.2f", o }')"
     state_set opacity "$o"
     deploy_aurorae
     cmd_apply   # re-renders every template with the new value and reloads KWin
@@ -396,13 +420,16 @@ cmd_status() {
     echo "scheme: $(kreadconfig6 --file kdeglobals --group General --key ColorScheme)"
     echo "icons:  $(kreadconfig6 --file kdeglobals --group Icons --key Theme)"
     echo "opacity: $(current_opacity)"
+    echo "menus:  $(current_menu_opacity)"
 }
 
 # ---------- setup ----------
 
-# Copies the Plasma style, gzipping SVGs to .svgz. $1 = opaque|translucent
+# Copies the Plasma style, gzipping SVGs to .svgz, with the current popup/tooltip translucency
+# (upstream issue #18: popups and menus could not be made opaque).
 deploy_plasma_style() {
-    local variant="$1" src="$THEME_SRC/plasma/$PLASMONK_NAME" svg rel out
+    local src="$THEME_SRC/plasma/$PLASMONK_NAME" script svg rel out
+    script="$(opacity_script)"
     rm -rf "$PLASMA_THEME_DIR"
     mkdir -p "$PLASMA_THEME_DIR"
     cp "$src/metadata.json" "$src/plasmarc" "$PLASMA_THEME_DIR/"
@@ -412,11 +439,8 @@ deploy_plasma_style() {
         mkdir -p "$(dirname "$out")"
         if [ "$rel" = widgets/checkmarks.svg ]; then
             cp "$svg" "$PLASMA_THEME_DIR/$rel"   # shipped uncompressed upstream; keep it that way
-        elif [ "$variant" = opaque ] && { [ "$rel" = dialogs/background.svg ] || [ "$rel" = widgets/translucentbackground.svg ]; }; then
-            # Upstream issue #18: popups/menus are 80% opaque; make the frame fully opaque.
-            sed -E 's/(^|[;"])opacity:0\.8(0000001)?([;"])/\1opacity:1\3/g' "$svg" | gzip -9n >"$out"
         else
-            gzip -9nc "$svg" >"$out"
+            sed -e "$script" "$svg" | gzip -9n >"$out"
         fi
     done < <(find "$src" -name '*.svg' -print0)
 }
@@ -462,7 +486,7 @@ configure_blur() {
 
 cmd_setup() {
     info "Deploying theme files"
-    deploy_plasma_style "$(state_get menus || true)"
+    deploy_plasma_style
 
     deploy_aurorae
 
@@ -638,14 +662,22 @@ setup_shell() {
 }
 
 cmd_menus() {
+    local usage="Usage: plasmonk menus [VALUE|opaque|translucent], VALUE from 0.20 to 1.00 (default $DEFAULT_MENU_OPACITY)"
+    local m
     case "${1:-}" in
-    opaque | translucent) ;;
-    *) die "Usage: plasmonk menus opaque|translucent" ;;
+    "")
+        echo "$(current_menu_opacity) (popups, menus, tooltips; 1.00 = solid; default $DEFAULT_MENU_OPACITY)"
+        return
+        ;;
+    opaque) m=1.00 ;;
+    translucent) m="$DEFAULT_MENU_OPACITY" ;;
+    *) m="$(parse_opacity "$1")" || die "$usage" ;;
     esac
-    state_set menus "$1"
-    deploy_plasma_style "$1"
+    state_set menus "$m"
+    deploy_plasma_style
+    cmd_apply   # re-renders Kvantum's menus and tooltips
     reload_plasma_style
-    ok "Plasma popups and menus are now $1"
+    ok "Popups, menus and tooltips are now at $m. Already-running Qt apps show it after a restart."
 }
 
 # ---------- panels ----------

@@ -90,8 +90,8 @@ plasmonk apply --wallpaper           # colors from the current wallpaper, and ke
 plasmonk apply --wallpaper ~/pic.jpg # set a wallpaper and take colors from it
 plasmonk wallpaper-colors            # list the wallpaper's candidate colors (0 = most dominant)
 plasmonk apply --color-index 1       # use the 2nd candidate; remembered for later wallpapers
-plasmonk menus opaque                # or: translucent
-plasmonk opacity 0.75                # translucency of title bars, windows, terminals (see below)
+plasmonk menus 0.85                  # popups, menus, tooltips; or: opaque, translucent
+plasmonk opacity 0.73                # title bars, windows, terminals, app themes (see below)
 plasmonk status
 plasmonk doctor                      # checks packages, files, and whether Better Blur needs a rebuild
 ```
@@ -129,24 +129,26 @@ after quitting it fully (tray icon > Quit) and starting it again.
 
 ### Translucency
 
+Two values, each from 0.20 (see-through) to 1.00 (solid). Setting one re-renders everything.
+
 ```sh
-plasmonk opacity          # show the current value
-plasmonk opacity 0.75     # 0.20 (see-through) .. 1.00 (solid); re-renders everything
+plasmonk opacity          # show the current value (default 0.63)
+plasmonk opacity 0.73     # title bars, windows, terminals, app themes
+plasmonk menus            # show the current value (default 0.80)
+plasmonk menus 0.85       # popups, menus and tooltips; also: opaque (1.00), translucent (0.80)
 ```
 
-The value applies to title bars and window frames, the file and list areas of Qt apps (Kvantum `base.color`),
-Ghostty and Konsole, and the Vesktop, Zen and Zed themes. Ghostty picks it up on a config reload (ctrl+shift+,);
-other apps after a restart.
+`plasmonk opacity` applies to title bars and window frames, Qt app window backgrounds and their file and list
+areas (Kvantum), Ghostty and Konsole, and the Vesktop, Zen and Zed themes. In Dolphin the file area is drawn on
+top of the window background, so the two layers stack and look more solid than a title bar at the same value.
 
-Not covered by it:
+`plasmonk menus` applies to Plasma popups (app launcher, tray, calendar), Qt app menus and tooltips (Kvantum),
+and Plasma tooltips, which stay 0.10 more solid than popups as upstream draws them. Shadows keep their own values.
 
-- The Kvantum window background behind toolbars and sidebars is fixed at 0.75 (upstream value). In Dolphin the
-  file area is drawn on top of it, so the two layers stack and look more solid than a title bar at the same value.
-- Plasma popups (app launcher, tray, calendar) and Plasma tooltips use the Plasma style, about 0.8 opaque
-  upstream; `plasmonk menus opaque` makes them solid.
-- Qt app menus and tooltips use Kvantum's menu and tooltip elements (0.8).
-- Blur strength, brightness, contrast and saturation are Better Blur DX's own settings: System Settings >
-  Window Management > Desktop Effects > Better Blur DX.
+Ghostty picks changes up on a config reload (ctrl+shift+,); already-running Qt apps after a restart.
+
+Blur strength, brightness, contrast and saturation are Better Blur DX's own settings: System Settings >
+Window Management > Desktop Effects > Better Blur DX.
 
 ## Login screen
 
@@ -202,7 +204,7 @@ hardcoded colors into ColorScheme classes. It is not needed to install.
 
 | Upstream | Fix here |
 |---|---|
-| #14 Plasma style hardcodes blue · #18 menus can't be opaque | Plasma style follows the color scheme; `plasmonk menus opaque` |
+| #14 Plasma style hardcodes blue · #18 menus can't be opaque | Plasma style follows the color scheme; `plasmonk menus opaque` (or any value) |
 | #15 Rofi text unreadable | Every Rofi element state has explicit colors |
 | #19 #20 #21 wrong font link | `ttf-jetbrains-mono-nerd` from the official repos |
 | #22 Better Blur unmaintained · #10 breaks after Plasma updates | Better Blur DX fork; `plasmonk doctor` flags when it needs a rebuild |
