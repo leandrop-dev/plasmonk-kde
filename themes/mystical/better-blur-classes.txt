@@ -19,3 +19,7 @@ org.kde.haruna
 rofi
 spotify
 steam
+# Plasmonk additions
+com.mitchellh.ghostty
+vesktop
+dev.zed.Zed

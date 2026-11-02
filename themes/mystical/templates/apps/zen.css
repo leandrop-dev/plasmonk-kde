@@ -1,0 +1,61 @@
+/* Plasmonk -> Zen browser chrome. Rendered by matugen on `plasmonk apply`; do not edit.
+ * userChrome.css and userContent.css import this file. Backgrounds are the Mystical dark greys;
+ * the accent follows the palette. Variable list from the hyprmonk Zen output.
+ * The window background is 63% opaque like Dolphin: Plasmonk turns on Zen's
+ * zen.widget.linux.transparency pref and KWin (Better Blur DX) blurs behind it. */
+@-moz-document url-prefix("chrome:") {
+    :root, .zen-browser-generic-background {
+        --zen-primary-color: {{palettes.primary._60.hex}} !important;
+        --zen-colors-primary: #2a2c31 !important;
+        --zen-colors-secondary: #25272f !important;
+        --zen-colors-tertiary: #1c1c23 !important;
+        --zen-colors-border: #3a3d45 !important;
+        --zen-dialog-background: #25272f !important;
+        --zen-main-browser-background: rgba(28, 28, 35, @PLASMONK_OPACITY@) !important;
+        --zen-main-browser-background-toolbar: rgba(28, 28, 35, @PLASMONK_OPACITY@) !important;
+        --zen-main-browser-background-old: rgba(28, 28, 35, @PLASMONK_OPACITY@) !important;
+        --zen-main-browser-background-toolbar-old: rgba(28, 28, 35, @PLASMONK_OPACITY@) !important;
+        --zen-themed-toolbar-bg: rgba(28, 28, 35, @PLASMONK_OPACITY@) !important;
+        --zen-themed-toolbar-bg-transparent: rgba(28, 28, 35, @PLASMONK_OPACITY@) !important;
+        --zen-toolbar-element-bg: #2a2c31 !important;
+        --zen-toolbar-element-bg-hover: #34373f !important;
+        --toolbar-bgcolor: rgba(28, 28, 35, @PLASMONK_OPACITY@) !important;
+        --toolbar-color: #e3e3e3 !important;
+        --toolbarbutton-icon-fill: #e3e3e3 !important;
+        --toolbox-textcolor: #e3e3e3 !important;
+        --toolbox-textcolor-inactive: #888a9a !important;
+        --lwt-text-color: #e3e3e3 !important;
+        --sidebar-text-color: #e3e3e3 !important;
+        --tab-selected-bgcolor: #2a2c31 !important;
+        --tab-selected-textcolor: #fcfcfc !important;
+        --toolbar-field-background-color: #25272f !important;
+        --toolbar-field-color: #e3e3e3 !important;
+        --toolbar-field-focus-background-color: #2a2c31 !important;
+        --toolbar-field-focus-color: #fcfcfc !important;
+        --urlbar-box-bgcolor: #2a2c31 !important;
+        --arrowpanel-background: #25272f !important;
+        --arrowpanel-color: #e3e3e3 !important;
+        --arrowpanel-border-color: #3a3d45 !important;
+        --color-accent-primary: {{palettes.primary._60.hex}} !important;
+        --color-accent-primary-hover: {{palettes.primary._70.hex}} !important;
+        --color-accent-primary-active: {{palettes.primary._50.hex}} !important;
+    }
+}
+@-moz-document url-prefix("about:") {
+    :root {
+        --zen-primary-color: {{palettes.primary._60.hex}} !important;
+        --zen-colors-primary: #2a2c31 !important;
+        --zen-colors-secondary: #25272f !important;
+        --zen-colors-tertiary: #1c1c23 !important;
+        --zen-colors-border: #3a3d45 !important;
+        --in-content-page-background: #1c1c23 !important;
+        --in-content-page-color: #e3e3e3 !important;
+        --in-content-box-background: #25272f !important;
+        --newtab-background-color: #1c1c23 !important;
+        --newtab-background-color-secondary: #25272f !important;
+        --newtab-text-primary-color: #e3e3e3 !important;
+        --color-accent-primary: {{palettes.primary._60.hex}} !important;
+        --color-accent-primary-hover: {{palettes.primary._70.hex}} !important;
+        --color-accent-primary-active: {{palettes.primary._50.hex}} !important;
+    }
+}

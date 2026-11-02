@@ -1,0 +1,29 @@
+# Plasmonk palette -> Ghostty. Rendered by matugen on `plasmonk apply`; do not edit.
+# Your own settings live in ~/.config/ghostty/config (colour overrides in user.conf).
+# Foreground/cursor/selection follow the palette. The background is #101010 on every palette,
+# the base of the title bars and Dolphin, so at the same opacity they match; ANSI hues stay fixed so
+# red still means error and green still means success on every preset.
+background = #101010
+background-opacity = @PLASMONK_OPACITY@
+background-blur = true
+foreground = {{palettes.neutral._90.hex}}
+cursor-color = {{palettes.primary._70.hex}}
+cursor-text = {{palettes.primary._20.hex}}
+selection-background = {{palettes.secondary._35.hex}}
+selection-foreground = {{palettes.neutral._99.hex}}
+palette = 0=#2a2c31
+palette = 1=#e06c75
+palette = 2=#98c379
+palette = 3=#e5c07b
+palette = 4=#61afef
+palette = 5=#c678dd
+palette = 6=#56b6c2
+palette = 7={{palettes.neutral._80.hex}}
+palette = 8={{palettes.neutral_variant._50.hex}}
+palette = 9=#ff8a92
+palette = 10=#b5e08f
+palette = 11=#f2d39b
+palette = 12=#8cc6f7
+palette = 13=#dd9cf0
+palette = 14=#7fd0da
+palette = 15={{palettes.neutral._95.hex}}

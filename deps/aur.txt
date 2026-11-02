@@ -1,4 +1,7 @@
 # AUR packages (paru or yay). One per line; comments allowed.
 yamis-icon-theme-git
+bibata-cursor-theme-bin
 kwin-effects-better-blur-dx
 plasma6-applets-panel-colorizer
+oh-my-zsh-git
+plasma6-applets-panel-spacer-extended

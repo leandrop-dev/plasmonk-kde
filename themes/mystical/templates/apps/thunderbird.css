@@ -1,0 +1,29 @@
+/* Plasmonk -> Thunderbird. Rendered by matugen on `plasmonk apply`; do not edit.
+ * userChrome.css imports this file. Variables are Thunderbird's own layout variables
+ * (omni.ja: messenger/layout.css, shared/variables.css, shared/tree-listbox.css), set for
+ * dark mode: Mystical dark-grey backgrounds, accent from the palette. */
+:root, :host {
+    --layout-background-0: #1c1c23 !important;
+    --layout-background-1: #25272f !important;
+    --layout-background-2: #2a2c31 !important;
+    --layout-background-3: #34373f !important;
+    --layout-background-4: #3a3d45 !important;
+    --layout-color-0: #fcfcfc !important;
+    --layout-color-1: #e3e3e3 !important;
+    --layout-color-2: #a1a9b1 !important;
+    --layout-color-3: #888a9a !important;
+    --layout-border-0: #2a2c31 !important;
+    --layout-border-1: #3a3d45 !important;
+    --layout-border-2: #4a4d56 !important;
+    --sidebar-highlight-background-color: {{palettes.primary._60.hex}} !important;
+    --sidebar-highlight-text-color: {{palettes.primary._10.hex}} !important;
+    --selected-item-color: {{palettes.primary._60.hex}} !important;
+    --selected-item-text-color: {{palettes.primary._10.hex}} !important;
+    --color-primary-default: {{palettes.primary._60.hex}} !important;
+    --tree-view-bg: #1c1c23 !important;
+    --tree-card-background: #25272f !important;
+    --tree-pane-background: #1c1c23 !important;
+    --listbox-selected-bg: #34373f !important;
+    --tabs-toolbar-background-color: #1c1c23 !important;
+    --toolbar-field-focus-border-color: {{palettes.primary._60.hex}} !important;
+}

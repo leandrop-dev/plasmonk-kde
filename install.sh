@@ -18,17 +18,21 @@ Usage: ./install.sh [options]
   --preset NAME      Color preset to apply on first install (default: blue; see presets.conf)
   --opaque-menus     Make Plasma popups and menus opaque (default: translucent)
   --skip-packages    Do not install packages; only install the theme
+  --keep-shell       Do not offer to make zsh your login shell
+  --panels           Replace your panels with the saved Plasmonk layout (themes/mystical/panels/layout.js)
   -y, --yes          Do not ask for confirmation
   -h, --help         Show this help
 EOF
 }
 
-PRESET="" OPAQUE=0 SKIP_PACKAGES=0 ASSUME_YES=0
+PRESET="" OPAQUE=0 SKIP_PACKAGES=0 ASSUME_YES=0 KEEP_SHELL=0 PANELS=0
 while [ $# -gt 0 ]; do
     case "$1" in
     --preset) PRESET="${2:?--preset needs a name}"; shift ;;
     --opaque-menus) OPAQUE=1 ;;
     --skip-packages) SKIP_PACKAGES=1 ;;
+    --keep-shell) KEEP_SHELL=1 ;;
+    --panels) PANELS=1 ;;
     -y | --yes) ASSUME_YES=1 ;;
     -h | --help) usage; exit 0 ;;
     *) usage >&2; die "Unknown option: $1" ;;
@@ -79,11 +83,24 @@ fi
 [ ${#missing_repo[@]} -gt 0 ] || [ ${#missing_aur[@]} -gt 0 ] || echo "    - install no packages (all present or --skip-packages)"
 echo "    - back up the KDE settings it changes to $PLASMONK_BACKUP_ROOT/"
 echo "    - install the theme into $XDG_DATA_HOME and $XDG_CONFIG_HOME, and plasmonk into $PLASMONK_BIN_LINK"
-echo "    - enable a user service that recolors the theme when you change wallpaper (only after 'plasmonk apply --wallpaper')"
+echo "    - set the Bibata Modern Ice cursor, YAMIS icons, and Ghostty as the default terminal (Ctrl+Alt+T)"
+echo "    - add one line to ~/.zshrc that loads the Plasmonk zsh setup (oh-my-zsh, starship, fastfetch)"
+[ "$KEEP_SHELL" -eq 1 ] || echo "    - offer to make zsh your login shell"
+[ "$PANELS" -eq 0 ] || echo "    - REPLACE all your panels with the saved Plasmonk layout (backed up first)"
+echo "    - show your desktop wallpaper on the SDDM login screen (asks; sudo once)"
+echo "    - enable a user service that follows wallpaper changes (login screen; colors after 'plasmonk apply --wallpaper')"
 echo
 confirm "Continue?" || die "Cancelled; nothing was changed."
 
 # ---------- 2. packages ----------
+
+# Remember which deps were already here, once, so uninstall --remove-packages leaves them.
+if [ ! -f "$PREINSTALLED_PACKAGES" ]; then
+    mkdir -p "$PLASMONK_STATE"
+    while IFS= read -r p; do
+        if pacman -Q "$p" >/dev/null 2>&1; then echo "$p"; fi
+    done < <(read_list "$REPO/deps/pacman.txt"; read_list "$REPO/deps/aur.txt") >"$PREINSTALLED_PACKAGES"
+fi
 
 if [ ${#missing_repo[@]} -gt 0 ]; then
     info "Installing official packages"
@@ -95,16 +112,41 @@ if [ ${#missing_aur[@]} -gt 0 ] && [ -n "$AUR_HELPER" ]; then
 fi
 have matugen || die "matugen is still missing; it is required to generate colors."
 
+# ---------- 2b. login screen wallpaper (sudo, once) ----------
+
+# SDDM's greeter cannot read your home folder. Give it a folder you own that it can read, and
+# point its theme's background there; plasmonk copies your wallpaper into it on every change.
+if sddm_dir="$(sddm_theme_dir)"; then
+    sddm_conf="$sddm_dir/theme.conf.user"
+    current_bg="$(kreadconfig6 --file "$sddm_conf" --group General --key background)"
+    if [ "$current_bg" != "$SDDM_WALLPAPER" ] || [ ! -w "$SDDM_SHARED_DIR" ]; then
+        if [ "$ASSUME_YES" -eq 1 ] && ! [ -t 0 ] && ! sudo -n true >/dev/null 2>&1; then
+            warn "Skipping the login screen wallpaper (needs sudo); run ./install.sh in a terminal to set it up"
+        elif confirm "Show your desktop wallpaper on the SDDM login screen? (sudo, once)"; then
+            if [ -z "$(state_get sddm_conf)" ]; then
+                state_set sddm_conf "$sddm_conf"
+                state_set sddm_original_background "${current_bg:-$UNSET_MARK}"
+            fi
+            sudo install -d -m 755 "$SDDM_SHARED_ROOT"
+            sudo install -d -m 755 -o "$(id -un)" -g "$(id -gn)" "$SDDM_SHARED_DIR"
+            sudo kwriteconfig6 --file "$sddm_conf" --group General --key background "$SDDM_WALLPAPER"
+            ok "SDDM ($sddm_dir) now shows the wallpaper from $SDDM_WALLPAPER"
+        fi
+    fi
+fi
+
 # ---------- 3. backups ----------
 
 backup_dir="$PLASMONK_BACKUP_ROOT/$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$backup_dir"
-for f in kdeglobals kwinrc plasmarc Kvantum/kvantum.kvconfig rofi/config.rasi; do
+for f in kdeglobals kwinrc plasmarc kcminputrc konsolerc Kvantum/kvantum.kvconfig rofi/config.rasi \
+    "${REPLACED_FILES[@]}" ghostty/config ghostty/config.ghostty; do
     if [ -f "$XDG_CONFIG_HOME/$f" ]; then
         mkdir -p "$backup_dir/$(dirname "$f")"
         cp -p "$XDG_CONFIG_HOME/$f" "$backup_dir/$f"
     fi
 done
+[ ! -f "$ZSHRC" ] || cp -p "$ZSHRC" "$backup_dir/zshrc"
 ok "Backed up current settings to $backup_dir"
 
 # Record each setting's original value once. Keys already recorded are skipped, so a reinstall
@@ -126,6 +168,18 @@ done
 if [ "$first_install" -eq 1 ] && [ -f "$XDG_CONFIG_HOME/rofi/config.rasi" ]; then
     cp -p "$XDG_CONFIG_HOME/rofi/config.rasi" "$PLASMONK_STATE/original-rofi-config.rasi"
 fi
+for f in "${REPLACED_FILES[@]}"; do
+    if [ ! -e "$ORIGINALS_DIR/$f" ] && [ ! -e "$ORIGINALS_DIR/$f.none" ]; then
+        mkdir -p "$(dirname "$ORIGINALS_DIR/$f")"
+        if [ -f "$XDG_CONFIG_HOME/$f" ]; then
+            cp -p "$XDG_CONFIG_HOME/$f" "$ORIGINALS_DIR/$f"
+        else
+            : >"$ORIGINALS_DIR/$f.none"
+        fi
+    fi
+done
+# The login shell, recorded once so uninstall.sh can offer to switch back.
+[ -n "$(state_get original_shell)" ] || state_set original_shell "$(getent passwd "$(id -un)" | cut -d: -f7)"
 [ "$recorded" -eq 0 ] || ok "Recorded $recorded original KDE setting(s) in $ORIGINAL_SETTINGS"
 
 # ---------- 4. install ----------
@@ -133,7 +187,7 @@ fi
 info "Installing Plasmonk files to $PLASMONK_SHARE"
 rm -rf "$PLASMONK_SHARE"
 mkdir -p "$PLASMONK_SHARE" "$(dirname "$PLASMONK_BIN_LINK")"
-cp -r "$REPO/bin" "$REPO/lib" "$REPO/themes" "$REPO/presets.conf" "$PLASMONK_SHARE/"
+cp -r "$REPO/bin" "$REPO/lib" "$REPO/themes" "$REPO/deps" "$REPO/presets.conf" "$PLASMONK_SHARE/"
 ln -sfn "$PLASMONK_SHARE/bin/plasmonk" "$PLASMONK_BIN_LINK"
 case ":$PATH:" in
 *":$(dirname "$PLASMONK_BIN_LINK"):"*) ;;
@@ -155,16 +209,37 @@ else
     "$PLASMONK_BIN_LINK" apply   # last palette on reinstall, blue on first install
 fi
 
+if [ "$PANELS" -eq 1 ]; then
+    "$PLASMONK_BIN_LINK" panels restore "$PLASMONK_SHARE/themes/mystical/panels/layout.js" --yes
+fi
+
+# ---------- 5. login shell ----------
+
+zsh_path="$(command -v zsh || true)"
+login_shell="$(getent passwd "$(id -un)" | cut -d: -f7)"
+if [ "$KEEP_SHELL" -eq 0 ] && [ -n "$zsh_path" ] && [ "$login_shell" != "$zsh_path" ]; then
+    echo
+    if [ ! -t 0 ]; then
+        warn "Not interactive; to make zsh your login shell run: chsh -s $zsh_path"
+    elif confirm "Make zsh your login shell? (chsh asks for your password)"; then
+        chsh -s "$zsh_path" || warn "chsh failed; run it yourself: chsh -s $zsh_path"
+    fi
+fi
+
 echo
 ok "Plasmonk is installed."
 cat <<EOF
 
 Next steps (manual, per upstream README):
-  - Log out and back in so every app picks up the Kvantum style and font.
+  - Log out and back in so every app picks up the Kvantum style and font, the new cursor,
+    and your login shell.
+  - Terminal: Ctrl+Alt+T opens Ghostty. Your own zsh settings go in ~/.config/zsh/user.zsh,
+    Ghostty overrides in ~/.config/ghostty/user.conf.
+  - Launcher: Meta+Space opens Rofi.
   - Blur: Better Blur DX is enabled for the apps in themes/mystical/better-blur-classes.txt.
     Add more in System Settings > Window Management > Desktop Effects > Better Blur DX.
   - Transparent panel: add the "Panel Colorizer" widget to your panel, then
     Appearance > Native Panel > uncheck "Background".
 
-Try:  plasmonk apply --preset red   |   plasmonk apply --wallpaper   |   plasmonk doctor
+Try:  plasmonk apply --preset red  |  plasmonk apply --wallpaper  |  plasmonk wallpaper-colors  |  plasmonk doctor
 EOF

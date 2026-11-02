@@ -1,0 +1,45 @@
+// Plasmonk fastfetch config. Layout adapted from Ryoku's (GPL-3.0, github.com/Ryoku-dev/ryoku),
+// colours rendered by matugen from the active Plasmonk palette on `plasmonk apply`.
+// Edits here are overwritten; put your own config in ~/.config/fastfetch/user.jsonc and
+// point fastfetch at it (fastfetch -c user) if you want something different.
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "padding": { "top": 1, "right": 3, "left": 2 },
+    "color": { "1": "38;2;{{palettes.primary._70.red}};{{palettes.primary._70.green}};{{palettes.primary._70.blue}}", "2": "38;2;{{palettes.neutral._95.red}};{{palettes.neutral._95.green}};{{palettes.neutral._95.blue}}" }
+  },
+  "display": {
+    "color": { "keys": "38;2;{{palettes.primary._70.red}};{{palettes.primary._70.green}};{{palettes.primary._70.blue}}" },
+    "key": { "width": 9 },
+    "separator": "  ",
+    "percent": {
+      "type": 9,
+      "color": { "green": "38;2;152;195;121", "yellow": "38;2;229;192;123", "red": "38;2;224;108;117" }
+    }
+  },
+  "modules": [
+    "break",
+    { "type": "title", "format": "\u001b[1;38;2;{{palettes.neutral._95.red}};{{palettes.neutral._95.green}};{{palettes.neutral._95.blue}}m{user-name}\u001b[0m\u001b[38;2;{{palettes.neutral_variant._60.red}};{{palettes.neutral_variant._60.green}};{{palettes.neutral_variant._60.blue}}m @ \u001b[0m\u001b[1;38;2;{{palettes.neutral._95.red}};{{palettes.neutral._95.green}};{{palettes.neutral._95.blue}}m{host-name}\u001b[0m" },
+    { "type": "custom", "format": "\u001b[38;2;{{palettes.primary._70.red}};{{palettes.primary._70.green}};{{palettes.primary._70.blue}}m■\u001b[0m \u001b[38;2;{{palettes.neutral_variant._60.red}};{{palettes.neutral_variant._60.green}};{{palettes.neutral_variant._60.blue}}mPLASMONK · KDE Plasma\u001b[0m" },
+    "break",
+    { "type": "custom", "format": "\u001b[38;2;{{palettes.primary._70.red}};{{palettes.primary._70.green}};{{palettes.primary._70.blue}}m──\u001b[0m \u001b[1;38;2;{{palettes.neutral._95.red}};{{palettes.neutral._95.green}};{{palettes.neutral._95.blue}}mVITALS\u001b[0m \u001b[38;2;{{palettes.neutral_variant._25.red}};{{palettes.neutral_variant._25.green}};{{palettes.neutral_variant._25.blue}}m──────────────────────────\u001b[0m" },
+    { "type": "cpu",    "key": "CPU" },
+    { "type": "gpu",    "key": "GPU", "detectionMethod": "pci" },
+    { "type": "memory", "key": "MEMORY" },
+    { "type": "disk",   "key": "DISK" },
+    "break",
+    { "type": "custom", "format": "\u001b[38;2;{{palettes.primary._70.red}};{{palettes.primary._70.green}};{{palettes.primary._70.blue}}m──\u001b[0m \u001b[1;38;2;{{palettes.neutral._95.red}};{{palettes.neutral._95.green}};{{palettes.neutral._95.blue}}mSYSTEM\u001b[0m \u001b[38;2;{{palettes.neutral_variant._25.red}};{{palettes.neutral_variant._25.green}};{{palettes.neutral_variant._25.blue}}m──────────────────────────\u001b[0m" },
+    { "type": "os",      "key": "OS" },
+    { "type": "kernel",  "key": "KERNEL" },
+    { "type": "de",      "key": "DE" },
+    { "type": "shell",   "key": "SHELL" },
+    { "type": "packages","key": "PKGS" },
+    "break",
+    { "type": "custom", "format": "\u001b[38;2;{{palettes.primary._70.red}};{{palettes.primary._70.green}};{{palettes.primary._70.blue}}m──\u001b[0m \u001b[1;38;2;{{palettes.neutral._95.red}};{{palettes.neutral._95.green}};{{palettes.neutral._95.blue}}mSESSION\u001b[0m \u001b[38;2;{{palettes.neutral_variant._25.red}};{{palettes.neutral_variant._25.green}};{{palettes.neutral_variant._25.blue}}m──────────────────────────\u001b[0m" },
+    { "type": "uptime",  "key": "UPTIME" },
+    { "type": "terminal","key": "TERM" },
+    "break",
+    { "type": "colors", "symbol": "circle", "paddingLeft": 2 },
+    "break"
+  ]
+}

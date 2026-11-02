@@ -11,7 +11,11 @@ THEME_SRC="$ROOT/themes/mystical"
 TEMPLATES="$THEME_SRC/templates"
 PRESETS_FILE="$ROOT/presets.conf"
 DEFAULT_PRESET="blue"
+DEFAULT_OPACITY="0.63"   # translucency of title bars, windows and terminals; see `plasmonk opacity`
 AURORAE_BUTTONS=(close maximize restore minimize keepabove keepbelow alldesktops)
+CURSOR_THEME="Bibata-Modern-Ice"
+ICON_THEME="yet-another-monochrome-icon-set"   # YAMIS, from the upstream README
+TERMINAL_SHORTCUT="Ctrl+Alt+T"
 
 usage() {
     cat <<'EOF'
@@ -22,8 +26,17 @@ Usage: plasmonk <command> [options]
   apply --seed '#RRGGBB'      Derive the palette from any color
   apply --wallpaper [PATH]    Derive the palette from PATH (also sets it as wallpaper),
                               or from the current wallpaper; keeps following wallpaper changes
+        [--color-index N]     Which wallpaper color to use: 0 = most dominant (default) .. 4.
+                              Remembered for later wallpaper changes; implies --wallpaper
+  wallpaper-colors [PATH]     List the candidate colors of the current wallpaper (or PATH)
   presets                     List presets
   menus opaque|translucent    Make Plasma popups/menus opaque or restore translucency
+  opacity [VALUE]             Show or set the translucency of title bars, windows, terminals
+                              and app themes: 0.20 (see-through) .. 1.00 (solid), default 0.63
+  panels save [FILE]          Save the current panels and their widgets as a layout script
+                              (default: ~/.config/plasmonk/panels.js)
+  panels restore [FILE] [-y]  Replace all current panels with a saved layout (default: your
+                              saved one, else the one shipped with Plasmonk)
   status                      Show the active palette source
   doctor                      Check dependencies and installed components
 
@@ -108,6 +121,11 @@ image_signature() {
 
 # ---------- rendering ----------
 
+# Prints one matugen [templates.NAME] section. $1 = name, $2 = input, $3 = output
+template() {
+    printf '\n[templates.%s]\ninput_path = "%s"\noutput_path = "%s"\n' "$1" "$2" "$3"
+}
+
 write_matugen_config() {
     local cfg="$PLASMONK_STATE/matugen.toml" b
     mkdir -p "$PLASMONK_STATE"
@@ -135,6 +153,21 @@ write_matugen_config() {
             echo "input_path = \"$TEMPLATES/aurorae/$b.svg\""
             echo "output_path = \"$AURORAE_DIR/$b.svg\""
         done
+        template ghostty "$TEMPLATES/terminal/ghostty-colors" "$GHOSTTY_DIR/plasmonk-colors"
+        template konsole "$TEMPLATES/terminal/Plasmonk.colorscheme" "$KONSOLE_DATA_DIR/$PLASMONK_NAME.colorscheme"
+        template starship "$TEMPLATES/terminal/starship.toml" "$STARSHIP_FILE"
+        template zsh-colors "$TEMPLATES/terminal/plasmonk-colors.zsh" "$ZSH_CFG_DIR/plasmonk-colors.zsh"
+        template fastfetch "$TEMPLATES/terminal/fastfetch.jsonc" "$FASTFETCH_DIR/config.jsonc"
+        # Apps, only once you have used them (their config folder exists).
+        [ ! -d "$VESKTOP_DIR" ] || template vesktop "$TEMPLATES/apps/vesktop.theme.css" "$VESKTOP_DIR/themes/$VESKTOP_THEME"
+        [ ! -d "$ZED_DIR" ] || template zed "$TEMPLATES/apps/zed-plasmonk.json" "$ZED_DIR/themes/plasmonk.json"
+        local profile
+        if profile="$(mozilla_profile "$ZEN_DIR")"; then
+            template zen "$TEMPLATES/apps/zen.css" "$profile/chrome/plasmonk.css"
+        fi
+        if profile="$(mozilla_profile "$THUNDERBIRD_DIR")"; then
+            template thunderbird "$TEMPLATES/apps/thunderbird.css" "$profile/chrome/plasmonk.css"
+        fi
     } >"$cfg"
     printf '%s\n' "$cfg"
 }
@@ -146,6 +179,52 @@ render() {
     cfg="$(write_matugen_config)"
     NO_COLOR=1 matugen -q -c "$cfg" "$@" -m dark </dev/null ||
         die "matugen failed to render the palette"
+    local out
+    while IFS= read -r out; do
+        [ ! -f "$out" ] || fill_opacity "$out"
+    done < <(sed -n 's/^output_path = "\(.*\)"$/\1/p' "$cfg")
+}
+
+# ---------- translucency ----------
+
+# One value for every translucent surface Plasmonk draws: title bars, Kvantum window
+# backgrounds, terminals and app themes. Templates carry @PLASMONK_OPACITY@ (e.g. 0.63) and
+# @PLASMONK_ALPHA@ (the same as two hex digits, e.g. a1), filled in after rendering.
+current_opacity() {
+    local o
+    o="$(state_get opacity)"
+    printf '%s\n' "${o:-$DEFAULT_OPACITY}"
+}
+
+# Fills the translucency placeholders in file $1, in place.
+fill_opacity() {
+    local o a
+    o="$(current_opacity)"
+    a="$(awk -v o="$o" 'BEGIN { printf "%02x", int(o * 255 + 0.5) }')"
+    sed -i --follow-symlinks -e "s/@PLASMONK_OPACITY@/$o/g" -e "s/@PLASMONK_ALPHA@/$a/g" -- "$1"
+}
+
+# Copies the Aurorae decoration (title bar and frame) with the current translucency.
+deploy_aurorae() {
+    mkdir -p "$AURORAE_DIR"
+    cp "$THEME_SRC"/aurorae/* "$AURORAE_DIR/"
+    fill_opacity "$AURORAE_DIR/decoration.svg"
+}
+
+cmd_opacity() {
+    if [ $# -eq 0 ]; then
+        echo "$(current_opacity) (0.20 = mostly see-through .. 1.00 = solid; default $DEFAULT_OPACITY)"
+        return
+    fi
+    local o
+    if ! [[ "$1" =~ ^(0?\.[0-9]{1,2}|1(\.0{1,2})?)$ ]] || ! awk -v o="$1" 'BEGIN { exit !(o >= 0.2) }'; then
+        die "Usage: plasmonk opacity [VALUE], VALUE from 0.20 to 1.00 (default $DEFAULT_OPACITY)"
+    fi
+    o="$(awk -v o="$1" 'BEGIN { printf "%.2f", o }')"
+    state_set opacity "$o"
+    deploy_aurorae
+    cmd_apply   # re-renders every template with the new value and reloads KWin
+    ok "Translucency is now $o. Ghostty: reload its config (ctrl+shift+,); other apps: restart them."
 }
 
 # ---------- applying ----------
@@ -165,20 +244,42 @@ reload_kwin() {
     qdbus6 org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || warn "Could not ask KWin to reload (not in a Plasma session?)"
 }
 
-cmd_apply() {
-    local mode="" value="" image="" seed
+# Prints matugen's candidate source colors for an image, most dominant first (at most 5).
+source_colors() {
+    NO_COLOR=1 matugen image "$1" --show-source-colors </dev/null
+}
 
-    case "${1:-}" in
-    --preset) mode=preset value="${2:?--preset needs a name}" ;;
-    --seed) mode=seed value="${2:?--seed needs a color like '#3e6fd9'}" ;;
-    --wallpaper) mode=wallpaper value="${2:-}" ;;
-    "")
+# Prints the resolved image file of the current wallpaper, or dies explaining why not.
+current_wallpaper_image() {
+    local wp
+    wp="$(current_wallpaper)" || die "Could not find the current wallpaper (only the 'Image' wallpaper type is supported)"
+    resolve_image "$wp" || die "The current wallpaper does not exist on disk: $wp"
+}
+
+cmd_apply() {
+    local mode="" value="" index="" image="" seed count
+
+    while [ $# -gt 0 ]; do
+        case "$1" in
+        --preset) mode=preset value="${2:?--preset needs a name}"; shift ;;
+        --seed) mode=seed value="${2:?--seed needs a color like '#3e6fd9'}"; shift ;;
+        --wallpaper)
+            mode=wallpaper value=""
+            if [ $# -gt 1 ] && [[ "$2" != -* ]]; then value="$2"; shift; fi
+            ;;
+        --color-index) index="${2:?--color-index needs a number from 0 to 4}"; shift ;;
+        *) usage >&2; exit 2 ;;
+        esac
+        shift
+    done
+    if [ -z "$mode" ] && [ -n "$index" ]; then
+        mode=wallpaper value=""   # picking a wallpaper color means following the wallpaper
+    elif [ -z "$mode" ]; then
         mode="$(state_get mode)"
         value="$(state_get value)"
         [ -n "$mode" ] || { mode=preset value="$DEFAULT_PRESET"; }
-        ;;
-    *) usage >&2; exit 2 ;;
-    esac
+    fi
+    [ -z "$index" ] || [ "$mode" = wallpaper ] || die "--color-index only works with --wallpaper"
 
     case "$mode" in
     preset)
@@ -193,17 +294,27 @@ cmd_apply() {
         render color hex "$value"
         ;;
     wallpaper)
+        [ -n "$index" ] || index="$(state_get color_index)"
+        index="${index:-0}"
+        [[ "$index" =~ ^[0-4]$ ]] || die "--color-index must be a number from 0 to 4 (see: plasmonk wallpaper-colors)"
         if [ -n "$value" ]; then
             image="$(resolve_image "$value")" || die "Not an image or wallpaper package: $value"
             plasma-apply-wallpaperimage "$image" >/dev/null
             value=""   # from now on, follow whatever the wallpaper is
         else
-            local wp
-            wp="$(current_wallpaper)" || die "Could not find the current wallpaper in $APPLETSRC (only the 'Image' wallpaper type is supported)"
-            image="$(resolve_image "$wp")" || die "The current wallpaper does not exist on disk: $wp"
+            image="$(current_wallpaper_image)"
         fi
-        info "Rendering from wallpaper $image"
-        render image "$image" --source-color-index 0
+        # Images can have fewer than 5 candidates; fall back to the most dominant one.
+        count="$(source_colors "$image" | grep -c '^#')" || true
+        if [ "$index" -ge "${count:-0}" ]; then
+            warn "This wallpaper has ${count:-0} candidate color(s), none at index $index; using index 0"
+            info "Rendering from wallpaper $image (color 0)"
+            render image "$image" --source-color-index 0
+        else
+            info "Rendering from wallpaper $image (color $index)"
+            render image "$image" --source-color-index "$index"
+        fi
+        state_set color_index "$index"
         state_set image_sig "$(image_signature "$image")"
         ;;
     *) die "Corrupt state file: unknown mode '$mode' in $PLASMONK_STATE_FILE" ;;
@@ -213,16 +324,57 @@ cmd_apply() {
     reload_kwin
     state_set mode "$mode"
     state_set value "$value"
-    ok "Applied. Already-running Qt apps pick up Kvantum colors after a restart."
+    ok "Applied. Already-running Qt apps pick up Kvantum colors after a restart; open a new terminal for its colors."
+}
+
+cmd_wallpaper_colors() {
+    local image c i=0 in_use="" swatch
+    if [ -n "${1:-}" ]; then
+        image="$(resolve_image "$1")" || die "Not an image or wallpaper package: $1"
+    else
+        image="$(current_wallpaper_image)"
+    fi
+    [ "$(state_get mode)" != wallpaper ] || in_use="$(state_get color_index)"
+    echo "Candidate colors for $image:"
+    while IFS= read -r c; do
+        swatch=""
+        if [ -t 1 ]; then
+            swatch="$(printf '\e[48;2;%d;%d;%dm      \e[0m ' "$((16#${c:1:2}))" "$((16#${c:3:2}))" "$((16#${c:5:2}))")"
+        fi
+        printf '  %d  %s%s%s\n' "$i" "$swatch" "$c" "$([ "$i" != "${in_use:-0}" ] || [ -z "$in_use" ] || echo '   (in use)')"
+        i=$((i + 1))
+    done < <(source_colors "$image" | grep '^#')
+    echo "Pick one with: plasmonk apply --color-index N"
+}
+
+# Copies the current desktop wallpaper to where the SDDM login screen reads it (set up once by
+# install.sh). Converted to JPEG at most 4K, so any format or wallpaper package works.
+sync_sddm_wallpaper() {
+    [ -d "$SDDM_SHARED_DIR" ] && [ -w "$SDDM_SHARED_DIR" ] || return 0
+    local wp img sig
+    wp="$(current_wallpaper)" || return 0
+    img="$(resolve_image "$wp")" || return 0
+    sig="$(image_signature "$img")"
+    if [ "$sig" = "$(state_get sddm_image_sig)" ] && [ -f "$SDDM_WALLPAPER" ]; then return 0; fi
+    if ! magick "$img" -auto-orient -resize '3840x2160>' -quality 92 "$SDDM_WALLPAPER.tmp.jpg"; then
+        rm -f -- "$SDDM_WALLPAPER.tmp.jpg"
+        warn "Could not copy the wallpaper for the login screen: $img"
+        return 0
+    fi
+    chmod 644 "$SDDM_WALLPAPER.tmp.jpg"
+    mv -f -- "$SDDM_WALLPAPER.tmp.jpg" "$SDDM_WALLPAPER"
+    state_set sddm_image_sig "$sig"
+    info "Login screen wallpaper: $img"
 }
 
 cmd_on_wallpaper_change() {
+    sync_sddm_wallpaper
     [ "$(state_get mode)" = wallpaper ] || exit 0
     local wp image
     wp="$(current_wallpaper)" || exit 0
     image="$(resolve_image "$wp")" || { warn "Wallpaper not found on disk: $wp"; exit 0; }
     [ "$(image_signature "$image")" != "$(state_get image_sig)" ] || exit 0
-    cmd_apply --wallpaper ""
+    cmd_apply --wallpaper
 }
 
 cmd_presets() {
@@ -238,8 +390,13 @@ cmd_status() {
     if [ -z "$mode" ]; then echo "No palette applied yet."; return; fi
     echo "mode:   $mode"
     [ -z "$(state_get value)" ] || echo "value:  $(state_get value)"
-    [ "$mode" != wallpaper ] || echo "image:  $(state_get image_sig)"
+    if [ "$mode" = wallpaper ]; then
+        echo "image:  $(state_get image_sig)"
+        echo "color:  index $(state_get color_index)"
+    fi
     echo "scheme: $(kreadconfig6 --file kdeglobals --group General --key ColorScheme)"
+    echo "icons:  $(kreadconfig6 --file kdeglobals --group Icons --key Theme)"
+    echo "opacity: $(current_opacity)"
 }
 
 # ---------- setup ----------
@@ -280,10 +437,25 @@ configure_blur() {
     [ -f /usr/lib/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ] || return 0
     kwriteconfig6 --file kwinrc --group Plugins --key blurEnabled false
     kwriteconfig6 --file kwinrc --group Plugins --key better_blur_dxEnabled true
-    if [ -z "$(kreadconfig6 --file kwinrc --group Effect-better-blur-dx --key WindowClasses)" ]; then
-        kwriteconfig6 --file kwinrc --group Effect-better-blur-dx --key WindowClasses \
-            "$(read_list "$THEME_SRC/better-blur-classes.txt")"
+    # Blur behind translucent title bars too (the Aurorae theme marks its area with mask-* elements).
+    kwriteconfig6 --file kwinrc --group Effect-better-blur-dx --key BlurDecorations true
+    # Each shipped class is added once. Classes you remove stay removed, and classes added in
+    # newer Plasmonk versions (e.g. Ghostty) still reach existing installs.
+    local classes seeded cls added=0
+    classes="$(kreadconfig6 --file kwinrc --group Effect-better-blur-dx --key WindowClasses)"
+    seeded="$(state_get blur_seeded)"
+    while IFS= read -r cls; do
+        case " $seeded " in *" $cls "*) continue ;; esac
+        seeded="${seeded:+$seeded }$cls"
+        if ! grep -qxF -- "$cls" <<<"$classes"; then
+            classes="${classes:+$classes$'\n'}$cls"
+            added=$((added + 1))
+        fi
+    done < <(read_list "$THEME_SRC/better-blur-classes.txt")
+    if [ "$added" -gt 0 ]; then
+        kwriteconfig6 --file kwinrc --group Effect-better-blur-dx --key WindowClasses "$classes"
     fi
+    state_set blur_seeded "$seeded"
     qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.unloadEffect blur >/dev/null 2>&1 || true
     qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.loadEffect better_blur_dx >/dev/null 2>&1 || true
     qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.reconfigureEffect better_blur_dx >/dev/null 2>&1 || true
@@ -294,8 +466,7 @@ cmd_setup() {
     deploy_plasma_style "$(state_get menus || true)"
 
     rm -rf "$AURORAE_DIR"
-    mkdir -p "$AURORAE_DIR"
-    cp "$THEME_SRC"/aurorae/* "$AURORAE_DIR/"
+    deploy_aurorae
 
     mkdir -p "$KVANTUM_DIR" "$ROFI_DIR"
     if [ -f "$ROFI_DIR/config.rasi" ] && ! cmp -s "$ROFI_DIR/config.rasi" "$THEME_SRC/rofi/config.rasi"; then
@@ -314,10 +485,149 @@ cmd_setup() {
     kwriteconfig6 --file kdeglobals --group General --key accentColorFromWallpaper false
     kwriteconfig6 --file kdeglobals --group General --key fixed "JetBrainsMono Nerd Font Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
     configure_blur
-    if [ -d /usr/share/icons/yet-another-monochrome-icon-set ]; then
-        /usr/lib/plasma-changeicons yet-another-monochrome-icon-set >/dev/null 2>&1 || warn "Could not switch icons to YAMIS"
+    if [ -d "/usr/share/icons/$ICON_THEME" ]; then
+        "$PLASMA_CHANGEICONS" "$ICON_THEME" >/dev/null 2>&1 || warn "Could not switch icons to YAMIS"
+    else
+        warn "YAMIS icons are not installed (yamis-icon-theme-git); keeping your icon theme"
     fi
+    if [ -d "/usr/share/icons/$CURSOR_THEME" ]; then
+        plasma-apply-cursortheme "$CURSOR_THEME" >/dev/null || warn "Could not switch the cursor to $CURSOR_THEME"
+    else
+        warn "Cursor theme $CURSOR_THEME is not installed (bibata-cursor-theme-bin)"
+    fi
+    setup_launcher
+    setup_terminal
+    setup_shell
+    setup_apps
+    sync_sddm_wallpaper
     ok "Theme files deployed"
+}
+
+# Makes a Mozilla profile ($1) load chrome/plasmonk.css: userChrome.css and userContent.css
+# ($2 = space-separated list) become a single import, and the pref that enables them is set,
+# plus any boolean prefs named in $3 (space-separated, set to true). Your previous files are
+# kept for uninstall.sh.
+mozilla_use_plasmonk_css() {
+    local profile="$1" name file pref
+    mkdir -p "$profile/chrome"
+    for name in $2; do
+        file="$profile/chrome/$name"
+        if [ ! -f "$file" ] || ! grep -qxF '@import "plasmonk.css";' "$file"; then
+            keep_original "$file"
+            printf '%s\n' '@import "plasmonk.css";' >"$file"
+        fi
+    done
+    for name in toolkit.legacyUserProfileCustomizations.stylesheets ${3:-}; do
+        pref="user_pref(\"$name\", true);"
+        if ! grep -qsF "$pref" "$profile/user.js"; then
+            keep_original "$profile/user.js"
+            printf '%s\n' "$pref" >>"$profile/user.js"
+        fi
+    done
+}
+
+# Vesktop (Midnight-based theme), Zed, Zen and Thunderbird. Each is only touched if you have
+# used it. Colors are rendered by `plasmonk apply`.
+setup_apps() {
+    local settings current profile
+    # Vesktop: theme enabled, and Vencord's transparent window on so KWin can blur behind it.
+    settings="$VESKTOP_DIR/settings/settings.json"
+    if [ -f "$settings" ] && ! jq -e --arg t "$VESKTOP_THEME" \
+        '((.enabledThemes // []) | index($t)) and .transparent == true' "$settings" >/dev/null; then
+        [ -n "$(state_get vesktop_original_transparent)" ] ||
+            state_set vesktop_original_transparent "$(jq '.transparent // false' "$settings")"
+        # Vencord writes no trailing newline; $(...) drops the one jq adds.
+        printf '%s' "$(jq --indent 4 --arg t "$VESKTOP_THEME" \
+            '.enabledThemes = ((.enabledThemes // []) - [$t] + [$t]) | .transparent = true' "$settings")" \
+            >"$settings.plasmonk-tmp"
+        cat "$settings.plasmonk-tmp" >"$settings"
+        rm -f -- "$settings.plasmonk-tmp"
+        if pgrep -f vesktop >/dev/null; then
+            warn "Vesktop is running: quit it fully (tray icon > Quit) and start it again to load the theme and transparency"
+        fi
+    fi
+
+    settings="$ZED_DIR/settings.json"
+    if [ -f "$settings" ]; then
+        current="$(zed_dark_theme "$settings")"
+        if [ -n "$current" ] && [ "$current" != "$ZED_THEME" ]; then
+            [ -n "$(state_get zed_original_theme)" ] || state_set zed_original_theme "$current"
+            zed_set_dark_theme "$settings" "$ZED_THEME"
+        elif [ -z "$current" ]; then
+            warn "Zed: no theme setting found in $settings; choose Plasmonk in Zed's theme selector"
+        fi
+    fi
+
+    if profile="$(mozilla_profile "$ZEN_DIR")"; then
+        mozilla_use_plasmonk_css "$profile" "userChrome.css userContent.css" zen.widget.linux.transparency
+    fi
+    if profile="$(mozilla_profile "$THUNDERBIRD_DIR")"; then
+        mozilla_use_plasmonk_css "$profile" "userChrome.css"
+    fi
+}
+
+# Writes a local copy of a system .desktop file with its global shortcut replaced. Local
+# copies shadow the system file; an existing local copy that is not ours is left alone.
+# $1 = desktop file id, $2 = shortcut ("" removes it)
+override_shortcut() {
+    local src="/usr/share/applications/$1" dst="$APPS_DIR/$1"
+    [ -f "$src" ] || return 0
+    if [ -f "$dst" ] && ! grep -qxF "$DESKTOP_MARKER" "$dst"; then
+        warn "Kept your own $dst; set its shortcut in System Settings > Keyboard > Shortcuts"
+        return 0
+    fi
+    mkdir -p "$APPS_DIR"
+    { echo "$DESKTOP_MARKER"; sed '/^X-KDE-Shortcuts=/d' "$src"; } |
+        if [ -n "$2" ]; then sed "/^\[Desktop Entry\]$/a X-KDE-Shortcuts=$2"; else cat; fi >"$dst"
+}
+
+# Prints the desktop file id of Ghostty (the name differs between packagings).
+ghostty_desktop_id() {
+    local id
+    for id in com.mitchellh.ghostty.desktop ghostty.desktop; do
+        if [ -f "/usr/share/applications/$id" ]; then echo "$id"; return 0; fi
+    done
+    return 1
+}
+
+# Rofi on Meta+Space, registered with KDE through its .desktop file.
+setup_launcher() {
+    mkdir -p "$APPS_DIR"
+    cp "$THEME_SRC/desktop/plasmonk-rofi.desktop" "$APPS_DIR/"
+}
+
+# Ghostty becomes the default terminal and takes Ctrl+Alt+T from Konsole; Konsole keeps a
+# matching profile. Colors are rendered by `plasmonk apply`.
+setup_terminal() {
+    local id
+    mkdir -p "$GHOSTTY_DIR" "$KONSOLE_DATA_DIR"
+    if [ ! -f "$GHOSTTY_DIR/config" ] && [ ! -f "$GHOSTTY_DIR/config.ghostty" ]; then
+        cp "$THEME_SRC/terminal/ghostty.config" "$GHOSTTY_DIR/config"
+    elif ! grep -qs '^config-file *= *plasmonk-colors' "$GHOSTTY_DIR/config" "$GHOSTTY_DIR/config.ghostty"; then
+        warn "Your Ghostty config does not load the palette; add this line to it: config-file = plasmonk-colors"
+    fi
+    cp "$THEME_SRC/terminal/$PLASMONK_NAME.profile" "$KONSOLE_DATA_DIR/"
+    kwriteconfig6 --file konsolerc --group "Desktop Entry" --key DefaultProfile "$PLASMONK_NAME.profile"
+
+    if id="$(ghostty_desktop_id)"; then
+        kwriteconfig6 --file kdeglobals --group General --key TerminalApplication ghostty
+        kwriteconfig6 --file kdeglobals --group General --key TerminalService "$id"
+        override_shortcut "$id" "$TERMINAL_SHORTCUT"
+        override_shortcut org.kde.konsole.desktop ""
+    else
+        warn "Ghostty is not installed; Konsole stays the default terminal"
+    fi
+    kbuildsycoca6 >/dev/null 2>&1 || warn "Could not refresh the KDE app cache; shortcuts apply after next login"
+}
+
+# zsh + oh-my-zsh + starship, configured by plasmonk.zsh (adapted from Ryoku). ~/.zshrc only
+# gets one line, so your own .zshrc content stays yours.
+setup_shell() {
+    mkdir -p "$ZSH_CFG_DIR"
+    cp "$THEME_SRC/terminal/plasmonk.zsh" "$ZSH_CFG_DIR/"
+    if [ ! -f "$ZSHRC" ] || ! grep -qxF "$ZSHRC_LINE" "$ZSHRC"; then
+        printf '%s\n' "$ZSHRC_LINE" >>"$ZSHRC"
+    fi
 }
 
 cmd_menus() {
@@ -331,6 +641,73 @@ cmd_menus() {
     ok "Plasma popups and menus are now $1"
 }
 
+# ---------- panels ----------
+
+USER_PANELS_FILE="$XDG_CONFIG_HOME/plasmonk/panels.js"
+SHIPPED_PANELS_FILE="$THEME_SRC/panels/layout.js"
+
+# Runs a Plasma script in the running plasmashell and prints its output. $1 = script text
+plasma_eval() {
+    qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "$1"
+}
+
+# True if Plasma can load widget $1 (packaged QML widget, user-installed, or compiled in).
+widget_installed() {
+    [ -d "/usr/share/plasma/plasmoids/$1" ] || [ -d "$XDG_DATA_HOME/plasma/plasmoids/$1" ] ||
+        [ -f "/usr/lib/qt6/plugins/plasma/applets/$1.so" ]
+}
+
+cmd_panels() {
+    local action="${1:-}" file="" yes=0 arg
+    [ $# -eq 0 ] || shift
+    for arg in "$@"; do
+        case "$arg" in
+        -y | --yes) yes=1 ;;
+        *) file="$arg" ;;
+        esac
+    done
+    case "$action" in
+    save)
+        file="${file:-$USER_PANELS_FILE}"
+        mkdir -p "$(dirname "$file")"
+        plasma_eval "$(cat "$ROOT/lib/panels-export.js")" >"$file.tmp" ||
+            { rm -f "$file.tmp"; die "Could not read the panels from plasmashell (is Plasma running?)"; }
+        mv "$file.tmp" "$file"
+        ok "Saved $(grep -c '^var p = new Panel' "$file") panel(s), $(grep -c '^widget(' "$file") widget(s) to $file"
+        ;;
+    restore)
+        if [ -z "$file" ]; then
+            if [ -f "$USER_PANELS_FILE" ]; then file="$USER_PANELS_FILE"; else file="$SHIPPED_PANELS_FILE"; fi
+        fi
+        [ -f "$file" ] || die "No saved layout at $file (run: plasmonk panels save)"
+        local t missing=() backup out
+        while IFS= read -r t; do
+            widget_installed "$t" || missing+=("$t")
+        done < <(sed -n 's/^widget(p, "\([^"]*\)".*/\1/p' "$file" | sort -u)
+        [ ${#missing[@]} -eq 0 ] || warn "Not installed, will be left out: ${missing[*]}"
+        if [ "$yes" -eq 0 ]; then
+            [ -t 0 ] || die "Not interactive; re-run with --yes to replace your panels."
+            read -r -p "Replace ALL current panels with the layout in $file? [y/N] " t
+            [[ "$t" =~ ^[Yy] ]] || die "Cancelled; panels unchanged."
+        fi
+        backup="$PLASMONK_BACKUP_ROOT/panels-$(date +%Y%m%d-%H%M%S)"
+        mkdir -p "$backup"
+        cp -p "$APPLETSRC" "$XDG_CONFIG_HOME/plasmashellrc" "$backup/"
+        out="$(plasma_eval "$(cat "$file")")" || die "plasmashell rejected the layout script; panels may be partly changed. Undo: see below.$(panels_undo_hint "$backup")"
+        case "$out" in
+        *missing\ widgets:*) warn "Plasma could not add: ${out#*missing widgets: }" ;;
+        esac
+        ok "Panels restored from $file. Previous panels backed up to $backup"
+        panels_undo_hint "$backup"
+        ;;
+    *) die "Usage: plasmonk panels save|restore [FILE] [--yes]" ;;
+    esac
+}
+
+panels_undo_hint() {
+    printf '\nTo undo:\n  systemctl --user stop plasma-plasmashell\n  cp %s/* %s/\n  systemctl --user start plasma-plasmashell\n' "$1" "$XDG_CONFIG_HOME"
+}
+
 # ---------- doctor ----------
 
 cmd_doctor() {
@@ -341,12 +718,17 @@ cmd_doctor() {
         if "$@" >/dev/null 2>&1; then ok "$what"; else warn "$what: MISSING"; problems=$((problems + 1)); fi
     }
 
-    for pkg in matugen kvantum ttf-jetbrains-mono-nerd rofi yamis-icon-theme-git kwin-effects-better-blur-dx plasma6-applets-panel-colorizer; do
+    while IFS= read -r pkg; do
         check "package $pkg" pacman -Q "$pkg"
-    done
+    done < <(read_list "$ROOT/deps/pacman.txt"; read_list "$ROOT/deps/aur.txt")
     check "Plasma style installed" test -f "$PLASMA_THEME_DIR/metadata.json"
     check "window decoration installed" test -f "$AURORAE_DIR/close.svg"
     check "Kvantum theme rendered" test -f "$KVANTUM_DIR/$PLASMONK_NAME.kvconfig"
+    check "Ghostty palette rendered" test -f "$GHOSTTY_DIR/plasmonk-colors"
+    check "Ghostty is the default terminal" test "$(kreadconfig6 --file kdeglobals --group General --key TerminalApplication)" = ghostty
+    check "cursor is $CURSOR_THEME" test "$(kreadconfig6 --file kcminputrc --group Mouse --key cursorTheme)" = "$CURSOR_THEME"
+    check "$ZSHRC loads plasmonk.zsh" grep -qxF "$ZSHRC_LINE" "$ZSHRC"
+    check "login shell is zsh" test "$(getent passwd "$(id -un)" | cut -d: -f7 | xargs basename)" = zsh
     check "wallpaper watcher enabled" systemctl --user is-enabled plasmonk-wallpaper.path
     if pacman -Q kwin-effects-better-blur-dx >/dev/null 2>&1; then
         check "Better Blur DX loaded in KWin" test "$(qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.isEffectLoaded better_blur_dx)" = true
@@ -380,8 +762,11 @@ main() {
     [ $# -eq 0 ] || shift
     case "$cmd" in
     apply) cmd_apply "$@" ;;
+    wallpaper-colors) cmd_wallpaper_colors "$@" ;;
     presets) cmd_presets ;;
     menus) cmd_menus "$@" ;;
+    opacity) cmd_opacity "$@" ;;
+    panels) cmd_panels "$@" ;;
     status) cmd_status ;;
     doctor) cmd_doctor ;;
     setup) cmd_setup ;;

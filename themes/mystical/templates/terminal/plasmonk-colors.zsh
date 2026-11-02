@@ -1,0 +1,28 @@
+# Plasmonk palette -> zsh syntax highlighting. Rendered by matugen on `plasmonk apply`; do not edit.
+# Sourced by ~/.config/zsh/plasmonk.zsh after the plugins load.
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg={{palettes.neutral_variant._50.hex}}'
+if (( ${+parameters[ZSH_HIGHLIGHT_STYLES]} )); then
+  ZSH_HIGHLIGHT_STYLES[default]='fg={{palettes.neutral._95.hex}}'
+  ZSH_HIGHLIGHT_STYLES[command]='fg={{palettes.primary._70.hex}}'
+  ZSH_HIGHLIGHT_STYLES[hashed-command]='fg={{palettes.primary._70.hex}}'
+  ZSH_HIGHLIGHT_STYLES[builtin]='fg={{palettes.primary._70.hex}}'
+  ZSH_HIGHLIGHT_STYLES[function]='fg={{palettes.primary._70.hex}}'
+  ZSH_HIGHLIGHT_STYLES[alias]='fg={{palettes.primary._70.hex}}'
+  ZSH_HIGHLIGHT_STYLES[suffix-alias]='fg={{palettes.primary._70.hex}}'
+  ZSH_HIGHLIGHT_STYLES[global-alias]='fg={{palettes.primary._70.hex}}'
+  ZSH_HIGHLIGHT_STYLES[reserved-word]='fg={{palettes.primary._80.hex}}'
+  ZSH_HIGHLIGHT_STYLES[precommand]='fg={{palettes.primary._80.hex}}'
+  ZSH_HIGHLIGHT_STYLES[commandseparator]='fg={{palettes.primary._80.hex}}'
+  ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg={{palettes.neutral_variant._80.hex}}'
+  ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg={{palettes.neutral_variant._80.hex}}'
+  ZSH_HIGHLIGHT_STYLES[single-quoted-argument]='fg={{palettes.tertiary._80.hex}}'
+  ZSH_HIGHLIGHT_STYLES[double-quoted-argument]='fg={{palettes.tertiary._80.hex}}'
+  ZSH_HIGHLIGHT_STYLES[dollar-quoted-argument]='fg={{palettes.tertiary._80.hex}}'
+  ZSH_HIGHLIGHT_STYLES[redirection]='fg={{palettes.secondary._80.hex}}'
+  ZSH_HIGHLIGHT_STYLES[named-fd]='fg={{palettes.secondary._80.hex}}'
+  ZSH_HIGHLIGHT_STYLES[numeric-fd]='fg={{palettes.secondary._80.hex}}'
+  ZSH_HIGHLIGHT_STYLES[globbing]='fg={{palettes.secondary._70.hex}}'
+  ZSH_HIGHLIGHT_STYLES[history-expansion]='fg={{palettes.secondary._70.hex}}'
+  ZSH_HIGHLIGHT_STYLES[comment]='fg={{palettes.neutral_variant._60.hex}}'
+  ZSH_HIGHLIGHT_STYLES[unknown-token]='fg={{palettes.error._70.hex}}'
+fi

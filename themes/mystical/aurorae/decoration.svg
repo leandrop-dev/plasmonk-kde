@@ -1367,7 +1367,7 @@
      width="46"
      class="ColorScheme-Background"
      id="decoration-center"
-     style="opacity:1;fill:#000000;fill-opacity:0.75;stroke:none" />
+     style="opacity:1;fill:#101010;fill-opacity:@PLASMONK_OPACITY@;stroke:none" />
   <g
      id="decoration-bottomleft"
      style="opacity:1">
@@ -1381,7 +1381,7 @@
        d="m 19.00002,10.000065 v 9 L 10,19 v -10e-6 0 a 8.99988,8.99988 135.00027 0 1 8.999945,-8.99986 l 9.5e-5,0 z"
        class="ColorScheme-Background"
        id="path63-3"
-       style="color:#383c4a;opacity:1;fill:#000000;fill-opacity:0.75;stroke:none"
+       style="color:#383c4a;opacity:1;fill:#101010;fill-opacity:@PLASMONK_OPACITY@;stroke:none"
        sodipodi:nodetypes="ccccccc"
        inkscape:path-effect="#path-effect16-7"
        inkscape:original-d="m 19.00002,10.000065 v 9 L 10,19 v -10e-6 l 2e-5,-8.999925 9.00002,6.5e-5 z"
@@ -1434,7 +1434,7 @@
        d="m 10,19 v 46 h 9 V 19 Z"
        class="ColorScheme-Background"
        id="path71"
-       style="color:#383c4a;opacity:1;fill:#000000;fill-opacity:0.75;stroke:none"
+       style="color:#383c4a;opacity:1;fill:#101010;fill-opacity:@PLASMONK_OPACITY@;stroke:none"
        sodipodi:nodetypes="ccccc" />
     <path
        inkscape:connector-curvature="0"
@@ -1479,7 +1479,7 @@
        d="M 74,19 V 65 H 65 V 19 Z"
        class="ColorScheme-Background"
        id="path79"
-       style="color:#383c4a;opacity:1;fill:#000000;fill-opacity:0.75;stroke:none"
+       style="color:#383c4a;opacity:1;fill:#101010;fill-opacity:@PLASMONK_OPACITY@;stroke:none"
        sodipodi:nodetypes="ccccc" />
     <path
        inkscape:connector-curvature="0"
@@ -1524,7 +1524,7 @@
        d="M 19,74 H 65 V 65 H 19 Z"
        class="ColorScheme-Background"
        id="path95"
-       style="color:#383c4a;opacity:1;fill:#000000;fill-opacity:0.75;stroke:none"
+       style="color:#383c4a;opacity:1;fill:#101010;fill-opacity:@PLASMONK_OPACITY@;stroke:none"
        sodipodi:nodetypes="ccccc" />
     <path
        inkscape:connector-curvature="0"
@@ -1553,7 +1553,7 @@
        d="m 19.00002,10.000065 v 9 L 10,19 v -10e-6 0 a 8.99988,8.99988 135.00027 0 1 8.999945,-8.99986 l 9.5e-5,0 z"
        class="ColorScheme-Background"
        id="path63-0"
-       style="color:#383c4a;opacity:1;fill:#000000;fill-opacity:0.75;stroke:none"
+       style="color:#383c4a;opacity:1;fill:#101010;fill-opacity:@PLASMONK_OPACITY@;stroke:none"
        sodipodi:nodetypes="ccccccc"
        transform="rotate(180,42.00001,42.000033)"
        inkscape:original-d="m 19.00002,10.000065 v 9 L 10,19 v -10e-6 l 2e-5,-8.999925 9.00002,6.5e-5 z"
@@ -1605,7 +1605,7 @@
        d="m 19,10 h 46 v 9 H 19 Z"
        class="ColorScheme-Background"
        id="path111"
-       style="color:#383c4a;opacity:1;fill:#000000;fill-opacity:0.75;stroke:none"
+       style="color:#383c4a;opacity:1;fill:#101010;fill-opacity:@PLASMONK_OPACITY@;stroke:none"
        sodipodi:nodetypes="ccccc" />
     <path
        inkscape:connector-curvature="0"
@@ -1633,7 +1633,7 @@
        d="m 19.00002,10.000065 v 9 L 10,19 v -10e-6 0 a 8.99988,8.99988 135.00027 0 1 8.999945,-8.99986 l 9.5e-5,0 z"
        class="ColorScheme-Background"
        id="path63-6"
-       style="color:#383c4a;opacity:1;fill:#000000;fill-opacity:0.75;stroke:none"
+       style="color:#383c4a;opacity:1;fill:#101010;fill-opacity:@PLASMONK_OPACITY@;stroke:none"
        sodipodi:nodetypes="ccccccc"
        inkscape:path-effect="#path-effect16-6"
        inkscape:original-d="m 19.00002,10.000065 v 9 L 10,19 v -10e-6 l 2e-5,-8.999925 9.00002,6.5e-5 z"
@@ -1671,7 +1671,7 @@
        d="m 19.00002,10.000065 v 9 L 10,19 v -10e-6 0 a 8.99988,8.99988 135.00027 0 1 8.999945,-8.99986 l 9.5e-5,0 z"
        class="ColorScheme-Background"
        id="path63"
-       style="color:#383c4a;opacity:1;fill:#000000;fill-opacity:0.75;stroke:none"
+       style="color:#383c4a;opacity:1;fill:#101010;fill-opacity:@PLASMONK_OPACITY@;stroke:none"
        sodipodi:nodetypes="ccccccc"
        inkscape:path-effect="#path-effect16"
        inkscape:original-d="m 19.00002,10.000065 v 9 L 10,19 v -10e-6 l 2e-5,-8.999925 9.00002,6.5e-5 z" />

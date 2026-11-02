@@ -1,6 +1,7 @@
 # Plasmonk KDE color scheme, rendered by matugen from themes/mystical/templates/plasmonk.colors.
 # Role mapping follows upstream JuxTheme.colors (themes/mystical/reference/), using matugen tonal palettes:
-#   view bg ~ neutral_variant 10, window bg ~ neutral_variant 15, accent ~ primary 50, links ~ primary 60.
+#   backgrounds (window, view, header, tooltip, panels, title bar) keep upstream's fixed dark greys so
+#   they never tint with the palette; accent ~ primary 50, links ~ primary 60, selection ~ secondary 35.
 # Positive (green) and Neutral (warning orange) stay fixed so their meaning survives every palette.
 
 [ColorEffects:Disabled]
@@ -25,7 +26,7 @@ IntensityEffect=0
 
 [Colors:Button]
 BackgroundAlternate={{palettes.primary._30.red}},{{palettes.primary._30.green}},{{palettes.primary._30.blue}}
-BackgroundNormal={{palettes.neutral_variant._10.red}},{{palettes.neutral_variant._10.green}},{{palettes.neutral_variant._10.blue}}
+BackgroundNormal=27,28,34
 DecorationFocus={{palettes.primary._50.red}},{{palettes.primary._50.green}},{{palettes.primary._50.blue}}
 DecorationHover={{palettes.primary._50.red}},{{palettes.primary._50.green}},{{palettes.primary._50.blue}}
 ForegroundActive={{palettes.primary._60.red}},{{palettes.primary._60.green}},{{palettes.primary._60.blue}}
@@ -39,7 +40,7 @@ ForegroundVisited={{palettes.tertiary._70.red}},{{palettes.tertiary._70.green}},
 
 [Colors:Complementary]
 BackgroundAlternate={{palettes.primary._30.red}},{{palettes.primary._30.green}},{{palettes.primary._30.blue}}
-BackgroundNormal={{palettes.neutral_variant._15.red}},{{palettes.neutral_variant._15.green}},{{palettes.neutral_variant._15.blue}}
+BackgroundNormal=32,35,38
 DecorationFocus={{palettes.primary._80.red}},{{palettes.primary._80.green}},{{palettes.primary._80.blue}}
 DecorationHover={{palettes.primary._60.red}},{{palettes.primary._60.green}},{{palettes.primary._60.blue}}
 ForegroundActive={{palettes.primary._60.red}},{{palettes.primary._60.green}},{{palettes.primary._60.blue}}
@@ -52,8 +53,8 @@ ForegroundPositive=39,174,96
 ForegroundVisited={{palettes.tertiary._70.red}},{{palettes.tertiary._70.green}},{{palettes.tertiary._70.blue}}
 
 [Colors:Header]
-BackgroundAlternate={{palettes.neutral._15.red}},{{palettes.neutral._15.green}},{{palettes.neutral._15.blue}}
-BackgroundNormal={{palettes.neutral_variant._20.red}},{{palettes.neutral_variant._20.green}},{{palettes.neutral_variant._20.blue}}
+BackgroundAlternate=32,35,38
+BackgroundNormal=41,44,48
 DecorationFocus={{palettes.primary._40.red}},{{palettes.primary._40.green}},{{palettes.primary._40.blue}}
 DecorationHover={{palettes.primary._40.red}},{{palettes.primary._40.green}},{{palettes.primary._40.blue}}
 ForegroundActive={{palettes.primary._60.red}},{{palettes.primary._60.green}},{{palettes.primary._60.blue}}
@@ -66,8 +67,8 @@ ForegroundPositive=39,174,96
 ForegroundVisited={{palettes.tertiary._70.red}},{{palettes.tertiary._70.green}},{{palettes.tertiary._70.blue}}
 
 [Colors:Header][Inactive]
-BackgroundAlternate={{palettes.neutral_variant._20.red}},{{palettes.neutral_variant._20.green}},{{palettes.neutral_variant._20.blue}}
-BackgroundNormal={{palettes.neutral._15.red}},{{palettes.neutral._15.green}},{{palettes.neutral._15.blue}}
+BackgroundAlternate=41,44,48
+BackgroundNormal=32,35,38
 DecorationFocus={{palettes.primary._50.red}},{{palettes.primary._50.green}},{{palettes.primary._50.blue}}
 DecorationHover={{palettes.primary._50.red}},{{palettes.primary._50.green}},{{palettes.primary._50.blue}}
 ForegroundActive={{palettes.primary._60.red}},{{palettes.primary._60.green}},{{palettes.primary._60.blue}}
@@ -94,8 +95,8 @@ ForegroundPositive=39,174,96
 ForegroundVisited={{palettes.tertiary._80.red}},{{palettes.tertiary._80.green}},{{palettes.tertiary._80.blue}}
 
 [Colors:Tooltip]
-BackgroundAlternate={{palettes.neutral._15.red}},{{palettes.neutral._15.green}},{{palettes.neutral._15.blue}}
-BackgroundNormal={{palettes.neutral_variant._15.red}},{{palettes.neutral_variant._15.green}},{{palettes.neutral_variant._15.blue}}
+BackgroundAlternate=32,35,38
+BackgroundNormal=37,38,48
 DecorationFocus={{palettes.primary._50.red}},{{palettes.primary._50.green}},{{palettes.primary._50.blue}}
 DecorationHover={{palettes.primary._50.red}},{{palettes.primary._50.green}},{{palettes.primary._50.blue}}
 ForegroundActive={{palettes.primary._60.red}},{{palettes.primary._60.green}},{{palettes.primary._60.blue}}
@@ -108,8 +109,8 @@ ForegroundPositive=39,174,96
 ForegroundVisited={{palettes.tertiary._70.red}},{{palettes.tertiary._70.green}},{{palettes.tertiary._70.blue}}
 
 [Colors:View]
-BackgroundAlternate={{palettes.neutral_variant._20.red}},{{palettes.neutral_variant._20.green}},{{palettes.neutral_variant._20.blue}}
-BackgroundNormal={{palettes.neutral_variant._10.red}},{{palettes.neutral_variant._10.green}},{{palettes.neutral_variant._10.blue}}
+BackgroundAlternate=42,44,49
+BackgroundNormal=28,28,35
 DecorationFocus={{palettes.primary._50.red}},{{palettes.primary._50.green}},{{palettes.primary._50.blue}}
 DecorationHover={{palettes.primary._50.red}},{{palettes.primary._50.green}},{{palettes.primary._50.blue}}
 ForegroundActive={{palettes.primary._60.red}},{{palettes.primary._60.green}},{{palettes.primary._60.blue}}
@@ -122,8 +123,8 @@ ForegroundPositive=39,174,96
 ForegroundVisited={{palettes.tertiary._70.red}},{{palettes.tertiary._70.green}},{{palettes.tertiary._70.blue}}
 
 [Colors:Window]
-BackgroundAlternate={{palettes.neutral_variant._20.red}},{{palettes.neutral_variant._20.green}},{{palettes.neutral_variant._20.blue}}
-BackgroundNormal={{palettes.neutral_variant._15.red}},{{palettes.neutral_variant._15.green}},{{palettes.neutral_variant._15.blue}}
+BackgroundAlternate=41,44,48
+BackgroundNormal=37,39,47
 DecorationFocus={{palettes.primary._50.red}},{{palettes.primary._50.green}},{{palettes.primary._50.blue}}
 DecorationHover={{palettes.primary._50.red}},{{palettes.primary._50.green}},{{palettes.primary._50.blue}}
 ForegroundActive={{palettes.primary._60.red}},{{palettes.primary._60.green}},{{palettes.primary._60.blue}}
@@ -144,9 +145,9 @@ shadeSortColumn=true
 contrast=4
 
 [WM]
-activeBackground={{palettes.neutral_variant._15.red}},{{palettes.neutral_variant._15.green}},{{palettes.neutral_variant._15.blue}}
+activeBackground=39,44,49
 activeBlend={{palettes.neutral._99.red}},{{palettes.neutral._99.green}},{{palettes.neutral._99.blue}}
 activeForeground={{palettes.neutral._99.red}},{{palettes.neutral._99.green}},{{palettes.neutral._99.blue}}
-inactiveBackground={{palettes.neutral_variant._10.red}},{{palettes.neutral_variant._10.green}},{{palettes.neutral_variant._10.blue}}
+inactiveBackground=32,36,40
 inactiveBlend={{palettes.neutral_variant._70.red}},{{palettes.neutral_variant._70.green}},{{palettes.neutral_variant._70.blue}}
 inactiveForeground={{palettes.neutral_variant._70.red}},{{palettes.neutral_variant._70.green}},{{palettes.neutral_variant._70.blue}}

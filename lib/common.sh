@@ -13,6 +13,8 @@ PLASMONK_STATE="$XDG_STATE_HOME/plasmonk"         # state file, staging output, 
 PLASMONK_STATE_FILE="$PLASMONK_STATE/state"
 PLASMONK_BACKUP_ROOT="$PLASMONK_STATE/backup"
 PLASMONK_BIN_LINK="$HOME/.local/bin/plasmonk"
+# Overridable so the sandbox test can shim it (it is not on PATH).
+PLASMA_CHANGEICONS="${PLASMA_CHANGEICONS:-/usr/lib/plasma-changeicons}"
 
 COLOR_SCHEME_DIR="$XDG_DATA_HOME/color-schemes"
 PLASMA_THEME_DIR="$XDG_DATA_HOME/plasma/desktoptheme/$PLASMONK_NAME"
@@ -21,6 +23,16 @@ KVANTUM_DIR="$XDG_CONFIG_HOME/Kvantum/$PLASMONK_NAME"
 ROFI_DIR="$XDG_CONFIG_HOME/rofi"
 SYSTEMD_USER_DIR="$XDG_CONFIG_HOME/systemd/user"
 APPLETSRC="$XDG_CONFIG_HOME/plasma-org.kde.plasma.desktop-appletsrc"
+GHOSTTY_DIR="$XDG_CONFIG_HOME/ghostty"
+ZSH_CFG_DIR="$XDG_CONFIG_HOME/zsh"
+STARSHIP_FILE="$XDG_CONFIG_HOME/starship.toml"
+FASTFETCH_DIR="$XDG_CONFIG_HOME/fastfetch"
+KONSOLE_DATA_DIR="$XDG_DATA_HOME/konsole"
+APPS_DIR="$XDG_DATA_HOME/applications"
+ZSHRC="$HOME/.zshrc"
+DESKTOP_MARKER="# plasmonk override: removed by uninstall.sh"   # first line of .desktop files plasmonk writes
+# shellcheck disable=SC2016  # literal line for ~/.zshrc; zsh expands it there
+ZSHRC_LINE='[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/plasmonk.zsh" ] && . "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/plasmonk.zsh"   # plasmonk'
 
 if [ -t 1 ]; then
     _c_info=$'\e[34m' _c_ok=$'\e[32m' _c_warn=$'\e[33m' _c_err=$'\e[31m' _c_off=$'\e[0m'
@@ -71,9 +83,101 @@ MANAGED_KEYS=(
     "kwinrc|Plugins|blurEnabled"
     "kwinrc|Plugins|better_blur_dxEnabled"
     "kwinrc|Effect-better-blur-dx|WindowClasses"
+    "kwinrc|Effect-better-blur-dx|BlurDecorations"
+    "kcminputrc|Mouse|cursorTheme"
+    "kdeglobals|General|TerminalApplication"
+    "kdeglobals|General|TerminalService"
+    "konsolerc|Desktop Entry|DefaultProfile"
 )
+
+# Config files (relative to XDG_CONFIG_HOME) that plasmonk renders over. install.sh keeps your
+# original once in ORIGINALS_DIR (or a .none marker if there was none); uninstall.sh puts it back.
+ORIGINALS_DIR="$PLASMONK_STATE/originals"
+REPLACED_FILES=(starship.toml fastfetch/config.jsonc)
+
+# Keeps the pre-Plasmonk version of file $1 (under HOME) once, in ORIGINALS_DIR/home/<path>, or a
+# .none marker if it did not exist. uninstall.sh puts each one back (or removes the file).
+keep_original() {
+    local dst="$ORIGINALS_DIR/home/${1#"$HOME"/}"
+    if [ -e "$dst" ] || [ -e "$dst.none" ]; then return 0; fi
+    mkdir -p "$(dirname "$dst")"
+    if [ -f "$1" ]; then cp -p "$1" "$dst"; else : >"$dst.none"; fi
+}
+
+# Apps Plasmonk themes when you have used them (their config folder exists).
+VESKTOP_DIR="$XDG_CONFIG_HOME/vesktop"
+ZED_DIR="$XDG_CONFIG_HOME/zed"
+ZEN_DIR="$XDG_CONFIG_HOME/zen"
+THUNDERBIRD_DIR="$XDG_CONFIG_HOME/thunderbird"
+VESKTOP_THEME="plasmonk.theme.css"
+ZED_THEME="Plasmonk"
+
+# Prints the profile folder a Mozilla-based app ($1 = folder with profiles.ini) opens by
+# default: its install's locked default, else the profile marked Default=1.
+mozilla_profile() {
+    local ini="$1/profiles.ini" rel
+    [ -f "$ini" ] || return 1
+    rel="$(awk -F= '/^\[Install/ { s = 1; next } /^\[/ { s = 0 } s && $1 == "Default" { print $2; exit }' "$ini")"
+    if [ -z "$rel" ]; then
+        rel="$(awk -F= '/^\[Profile/ { p = ""; d = 0 } $1 == "Path" { p = $2 } $1 == "Default" && $2 == "1" { d = 1 }
+            d && p != "" { print p; exit }' "$ini")"
+    fi
+    [ -n "$rel" ] || return 1
+    case "$rel" in /*) ;; *) rel="$1/$rel" ;; esac
+    [ -d "$rel" ] || return 1
+    printf '%s\n' "$rel"
+}
+
+# Packages from deps/ that were already installed before Plasmonk; uninstall.sh never removes them.
+PREINSTALLED_PACKAGES="$PLASMONK_STATE/preinstalled-packages.txt"
 
 # Lists non-comment, non-empty lines of a package list file.
 read_list() {
     sed -e 's/#.*//' -e 's/[[:space:]]*$//' -e '/^$/d' "$1"
+}
+
+# Prints the theme Zed uses in dark mode: the "dark" entry of a "theme": {...} object, or the
+# name of a plain "theme": "Name" setting. $1 = settings.json (JSON with comments).
+zed_dark_theme() {
+    awk '
+        /"theme"[[:space:]]*:[[:space:]]*"/ { sub(/.*"theme"[[:space:]]*:[[:space:]]*"/, ""); sub(/".*/, ""); print; exit }
+        /"theme"[[:space:]]*:[[:space:]]*\{/ { inside = 1 }
+        inside && /"dark"[[:space:]]*:/ { sub(/.*"dark"[[:space:]]*:[[:space:]]*"/, ""); sub(/".*/, ""); print; exit }
+        inside && /\}/ { inside = 0 }' "$1"
+}
+
+# Sets Zed's dark-mode theme to $2 in settings.json $1, in place (Zed reloads it live).
+zed_set_dark_theme() {
+    local tmp="$1.plasmonk-tmp"
+    awk -v name="$2" '
+        /"theme"[[:space:]]*:[[:space:]]*"/ { sub(/"theme"[[:space:]]*:[[:space:]]*"[^"]*"/, "\"theme\": \"" name "\"") }
+        /"theme"[[:space:]]*:[[:space:]]*\{/ { inside = 1 }
+        inside && /"dark"[[:space:]]*:/ { sub(/"dark"[[:space:]]*:[[:space:]]*"[^"]*"/, "\"dark\": \"" name "\""); inside = 0 }
+        inside && /\}/ { inside = 0 }
+        { print }' "$1" >"$tmp"
+    cat "$tmp" >"$1"   # keeps the file's permissions
+    rm -f -- "$tmp"
+}
+
+# SDDM login screen wallpaper. The greeter runs as the sddm user and cannot read your home
+# folder, so install.sh creates this folder once (sudo), owned by you and readable by all, and
+# points the SDDM theme's background at SDDM_WALLPAPER; plasmonk keeps it in sync after that.
+SDDM_SHARED_ROOT="/var/lib/plasmonk"
+SDDM_SHARED_DIR="$SDDM_SHARED_ROOT/sddm"
+SDDM_WALLPAPER="$SDDM_SHARED_DIR/wallpaper.jpg"
+
+# Prints the folder of the SDDM theme in use, if SDDM is the display manager. SDDM reads
+# /usr/lib/sddm/sddm.conf.d, then /etc/sddm.conf.d, then /etc/sddm.conf; the last value wins.
+sddm_theme_dir() {
+    case "$(readlink -f /etc/systemd/system/display-manager.service)" in
+    */sddm.service) ;;
+    *) return 1 ;;
+    esac
+    local f current
+    current="$(for f in /usr/lib/sddm/sddm.conf.d/*.conf /etc/sddm.conf.d/*.conf /etc/sddm.conf; do
+        if [ -f "$f" ]; then cat "$f"; fi
+    done | awk -F= '/^\[/ { s = ($0 == "[Theme]") } s && $1 == "Current" { c = $2 } END { print c }')"
+    [ -n "$current" ] && [ -f "/usr/share/sddm/themes/$current/theme.conf" ] || return 1
+    grep -q '^background=' "/usr/share/sddm/themes/$current/theme.conf" || return 1
+    printf '%s\n' "/usr/share/sddm/themes/$current"
 }

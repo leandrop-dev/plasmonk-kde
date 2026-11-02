@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Rofi (Plasmonk)
+Comment=Application launcher
+Exec=rofi -show drun
+Icon=rofi
+NoDisplay=true
+X-KDE-Shortcuts=Meta+Space

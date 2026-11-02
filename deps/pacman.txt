@@ -1,5 +1,21 @@
 # Official repo packages (pacman). One per line; comments allowed.
+# Theme
 matugen
 kvantum
 ttf-jetbrains-mono-nerd
 rofi
+# Terminal and shell (setup adapted from Ryoku)
+ghostty
+zsh
+starship
+zoxide
+fzf
+eza
+fd
+fastfetch
+mise
+zsh-autosuggestions
+zsh-syntax-highlighting
+zsh-history-substring-search
+jq
+imagemagick
