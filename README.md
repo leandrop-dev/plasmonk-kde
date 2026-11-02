@@ -25,7 +25,9 @@ Options: `--preset red`, `--opaque-menus`, `--skip-packages`, `--yes`. Run `./in
 
 After installing, log out and back in. Then:
 
-- **Blur:** System Settings → Window Management → Desktop Effects → enable *Better Blur DX*.
+- **Blur:** the installer replaces KWin's stock Blur with *Better Blur DX* (they conflict) and blurs the apps in
+  `themes/mystical/better-blur-classes.txt`. Add more in System Settings → Window Management → Desktop Effects →
+  Better Blur DX.
 - **Transparent panel:** add the *Panel Colorizer* widget to your panel → Appearance → Native Panel → uncheck
   *Background*.
 

@@ -63,6 +63,7 @@ if [ -f "$ORIGINAL_SETTINGS" ]; then
     info "Restoring your original KDE settings"
     orig_scheme="BreezeDark" orig_plasma="breeze-dark"
     while IFS=$'\t' read -r file group key value; do
+        value="${value//\\n/$'\n'}"   # install.sh stored newlines as \n
         if [ "$value" = "$UNSET_MARK" ]; then
             kwriteconfig6 --file "$file" --group "$group" --key "$key" --delete
         else
@@ -80,6 +81,14 @@ if [ -f "$ORIGINAL_SETTINGS" ]; then
     icons="$(kreadconfig6 --file kdeglobals --group Icons --key Theme --default breeze-dark)"
     /usr/lib/plasma-changeicons "$icons" >/dev/null 2>&1 || true
     qdbus6 org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || true
+    # Swap blur effects back live: Better Blur DX off unless it was on before, stock Blur back on
+    # unless it was off before (KWin's default for blur is on).
+    if [ "$(kreadconfig6 --file kwinrc --group Plugins --key better_blur_dxEnabled --default false)" != true ]; then
+        qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.unloadEffect better_blur_dx >/dev/null 2>&1 || true
+    fi
+    if [ "$(kreadconfig6 --file kwinrc --group Plugins --key blurEnabled --default true)" = true ]; then
+        qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.loadEffect blur >/dev/null 2>&1 || true
+    fi
 else
     warn "No record of original settings ($ORIGINAL_SETTINGS); switch theme manually in System Settings."
 fi

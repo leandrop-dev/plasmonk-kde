@@ -43,7 +43,7 @@
   </g>
   <g id="normal" transform="translate(2,-14)">
     <path id="path927-5" d="m 16,24 a 8,8 0 0 1 -8,8 8,8 0 0 1 -8,-8 8,8 0 0 1 8,-8 8,8 0 0 1 8,8 z" style="fill:currentColor;fill-rule:evenodd" class="ColorScheme-ButtonBackground"/>
-    <path id="path929-6" d="m 8,16 c -4.41235126727,0 -8,3.5876487327 -8,8 0,4.4123512673 3.58764873273,8 8,8 4.4123512673,0 8,-3.5876487327 8,-8 0,-4.4123512673 -3.5876487327,-8 -8,-8 z m 0,1 c 3.8719116927,0 7,3.1280883073 7,7 0,3.8719116927 -3.1280883073,7 -7,7 -3.87191169273,0 -7,-3.1280883073 -7,-7 0,-3.8719116927 3.12808830727,-7 7,-7 z" style="opacity:0.2;fill:#788dbe;fill-rule:evenodd;fill-opacity:1" class="ColorScheme-ButtonText"/>
+    <path id="path929-6" d="m 8,16 c -4.41235126727,0 -8,3.5876487327 -8,8 0,4.4123512673 3.58764873273,8 8,8 4.4123512673,0 8,-3.5876487327 8,-8 0,-4.4123512673 -3.5876487327,-8 -8,-8 z m 0,1 c 3.8719116927,0 7,3.1280883073 7,7 0,3.8719116927 -3.1280883073,7 -7,7 -3.87191169273,0 -7,-3.1280883073 -7,-7 0,-3.8719116927 3.12808830727,-7 7,-7 z" style="opacity:0.2;fill:currentColor;fill-rule:evenodd;fill-opacity:1" class="ColorScheme-ComplementaryHover"/>
   </g>
   <circle id="hint-size" cx="10" cy="-10" r="8" style="fill:#ff0000;fill-rule:evenodd"/>
   <circle id="symbol" cx="30" cy="10" r="3" style="fill:currentColor;fill-rule:evenodd" class="ColorScheme-ButtonText"/>

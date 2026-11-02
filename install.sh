@@ -107,17 +107,26 @@ for f in kdeglobals kwinrc plasmarc Kvantum/kvantum.kvconfig rofi/config.rasi; d
 done
 ok "Backed up current settings to $backup_dir"
 
-# Record original values once, so a reinstall never records Plasmonk's own values.
-if [ ! -f "$ORIGINAL_SETTINGS" ]; then
-    for entry in "${MANAGED_KEYS[@]}"; do
-        IFS='|' read -r file group key <<<"$entry"
-        value="$(kreadconfig6 --file "$file" --group "$group" --key "$key" --default "$UNSET_MARK")"
-        printf '%s\t%s\t%s\t%s\n' "$file" "$group" "$key" "$value"
-    done >"$ORIGINAL_SETTINGS"
-    # Remember whether rofi had a config before us, so uninstall restores or removes it.
-    if [ -f "$XDG_CONFIG_HOME/rofi/config.rasi" ]; then cp -p "$XDG_CONFIG_HOME/rofi/config.rasi" "$PLASMONK_STATE/original-rofi-config.rasi"; fi
-    ok "Recorded original KDE settings in $ORIGINAL_SETTINGS"
+# Record each setting's original value once. Keys already recorded are skipped, so a reinstall
+# never records Plasmonk's own values, while keys added in newer versions still get recorded.
+first_install=0
+[ -f "$ORIGINAL_SETTINGS" ] || first_install=1
+recorded=0
+for entry in "${MANAGED_KEYS[@]}"; do
+    IFS='|' read -r file group key <<<"$entry"
+    if [ "$first_install" -eq 0 ] && grep -qF "$file"$'\t'"$group"$'\t'"$key"$'\t' "$ORIGINAL_SETTINGS"; then
+        continue
+    fi
+    value="$(kreadconfig6 --file "$file" --group "$group" --key "$key" --default "$UNSET_MARK")"
+    value="${value//$'\n'/\\n}"   # one line per entry; uninstall.sh reverses this
+    printf '%s\t%s\t%s\t%s\n' "$file" "$group" "$key" "$value" >>"$ORIGINAL_SETTINGS"
+    recorded=$((recorded + 1))
+done
+# Remember whether rofi had a config before us, so uninstall restores or removes it.
+if [ "$first_install" -eq 1 ] && [ -f "$XDG_CONFIG_HOME/rofi/config.rasi" ]; then
+    cp -p "$XDG_CONFIG_HOME/rofi/config.rasi" "$PLASMONK_STATE/original-rofi-config.rasi"
 fi
+[ "$recorded" -eq 0 ] || ok "Recorded $recorded original KDE setting(s) in $ORIGINAL_SETTINGS"
 
 # ---------- 4. install ----------
 
@@ -152,7 +161,8 @@ cat <<EOF
 
 Next steps (manual, per upstream README):
   - Log out and back in so every app picks up the Kvantum style and font.
-  - Better Blur DX: System Settings > Window Management > Desktop Effects > enable "Better Blur DX".
+  - Blur: Better Blur DX is enabled for the apps in themes/mystical/better-blur-classes.txt.
+    Add more in System Settings > Window Management > Desktop Effects > Better Blur DX.
   - Transparent panel: add the "Panel Colorizer" widget to your panel, then
     Appearance > Native Panel > uncheck "Background".
 

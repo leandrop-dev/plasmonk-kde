@@ -1,0 +1,21 @@
+# Window classes Better Blur DX blurs (one per line), from the upstream Mystical-Blue README.
+# plasmonk setup writes this list only if you have not configured one yet.
+dolphin
+systemsettings
+zen
+app.zen_browser.zen
+plasmashell
+konsole
+kvantummanager
+org.kde.spectacle
+discord
+org.inkscape.Inkscape
+Yad
+kate
+org.kde.plasma-systemmonitor
+org.kde.ark
+org.kde.discover
+org.kde.haruna
+rofi
+spotify
+steam

@@ -68,6 +68,9 @@ MANAGED_KEYS=(
     "kwinrc|org.kde.kdecoration2|theme"
     "plasmarc|Theme|name"
     "$XDG_CONFIG_HOME/Kvantum/kvantum.kvconfig|General|theme"
+    "kwinrc|Plugins|blurEnabled"
+    "kwinrc|Plugins|better_blur_dxEnabled"
+    "kwinrc|Effect-better-blur-dx|WindowClasses"
 )
 
 # Lists non-comment, non-empty lines of a package list file.
