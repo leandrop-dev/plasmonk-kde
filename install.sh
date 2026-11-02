@@ -118,18 +118,27 @@ have matugen || die "matugen is still missing; it is required to generate colors
 # point its theme's background there; plasmonk copies your wallpaper into it on every change.
 if sddm_dir="$(sddm_theme_dir)"; then
     sddm_conf="$sddm_dir/theme.conf.user"
-    current_bg="$(kreadconfig6 --file "$sddm_conf" --group General --key background)"
+    # The greeter runs as the sddm user, so the file must be readable by all. A file you cannot
+    # read here is one the greeter cannot read either: it needs fixing too.
+    current_bg=""
+    if [ -r "$sddm_conf" ]; then
+        current_bg="$(kreadconfig6 --file "$sddm_conf" --group General --key background)"
+    fi
     if [ "$current_bg" != "$SDDM_WALLPAPER" ] || [ ! -w "$SDDM_SHARED_DIR" ]; then
         if [ "$ASSUME_YES" -eq 1 ] && ! [ -t 0 ] && ! sudo -n true >/dev/null 2>&1; then
             warn "Skipping the login screen wallpaper (needs sudo); run ./install.sh in a terminal to set it up"
         elif confirm "Show your desktop wallpaper on the SDDM login screen? (sudo, once)"; then
             if [ -z "$(state_get sddm_conf)" ]; then
+                if [ -e "$sddm_conf" ] && [ ! -r "$sddm_conf" ]; then
+                    current_bg="$(sudo kreadconfig6 --file "$sddm_conf" --group General --key background)"
+                fi
                 state_set sddm_conf "$sddm_conf"
                 state_set sddm_original_background "${current_bg:-$UNSET_MARK}"
             fi
             sudo install -d -m 755 "$SDDM_SHARED_ROOT"
             sudo install -d -m 755 -o "$(id -un)" -g "$(id -gn)" "$SDDM_SHARED_DIR"
             sudo kwriteconfig6 --file "$sddm_conf" --group General --key background "$SDDM_WALLPAPER"
+            sudo chmod 644 -- "$sddm_conf"   # KConfig creates new files as 0600
             ok "SDDM ($sddm_dir) now shows the wallpaper from $SDDM_WALLPAPER"
         fi
     fi

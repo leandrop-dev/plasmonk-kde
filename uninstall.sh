@@ -180,7 +180,7 @@ if [ -n "$sddm_conf" ] || [ -d "$SDDM_SHARED_ROOT" ]; then
             if [ -z "$sddm_bg" ] || [ "$sddm_bg" = "$UNSET_MARK" ]; then
                 sudo kwriteconfig6 --file "$sddm_conf" --group General --key background --delete
                 # theme.conf.user did not exist before Plasmonk: remove it if nothing else is in it.
-                if ! grep -q '=' "$sddm_conf"; then sudo rm -f -- "$sddm_conf"; fi
+                if ! sudo grep -q '=' "$sddm_conf"; then sudo rm -f -- "$sddm_conf"; fi
             else
                 sudo kwriteconfig6 --file "$sddm_conf" --group General --key background "$sddm_bg"
             fi
