@@ -16,6 +16,7 @@ AURORAE_BUTTONS=(close maximize restore minimize keepabove keepbelow alldesktops
 CURSOR_THEME="Bibata-Modern-Ice"
 ICON_THEME="yet-another-monochrome-icon-set"   # YAMIS, from the upstream README
 TERMINAL_SHORTCUT="Ctrl+Alt+T"
+TERMINAL_KEY=201326676   # the same as a Qt key code (Ctrl 0x04000000 + Alt 0x08000000 + T 0x54)
 
 usage() {
     cat <<'EOF'
@@ -614,10 +615,19 @@ setup_terminal() {
         kwriteconfig6 --file kdeglobals --group General --key TerminalService "$id"
         override_shortcut "$id" "$TERMINAL_SHORTCUT"
         override_shortcut org.kde.konsole.desktop ""
+        # Konsole's default also comes from /usr/share/kglobalaccel, which the override above
+        # does not reach: clear its entry as System Settings would, and in the running session.
+        kconfig kwriteconfig6 kglobalshortcutsrc "services][org.kde.konsole.desktop" --key _launch none
     else
         warn "Ghostty is not installed; Konsole stays the default terminal"
     fi
     kbuildsycoca6 >/dev/null 2>&1 || warn "Could not refresh the KDE app cache; shortcuts apply after next login"
+    if [ -n "$id" ]; then
+        if ! set_live_shortcut org.kde.konsole.desktop _launch Konsole "[]" ||
+            ! set_live_shortcut "$id" _launch Ghostty "[([$TERMINAL_KEY],)]"; then
+            warn "Could not update shortcuts in the running session; Ctrl+Alt+T moves to Ghostty after next login"
+        fi
+    fi
 }
 
 # zsh + oh-my-zsh + starship, configured by plasmonk.zsh (adapted from Ryoku). ~/.zshrc only

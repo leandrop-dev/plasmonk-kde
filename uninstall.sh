@@ -81,9 +81,9 @@ if [ -f "$ORIGINAL_SETTINGS" ]; then
     while IFS=$'\t' read -r file group key value; do
         value="${value//\\n/$'\n'}"   # install.sh stored newlines as \n
         if [ "$value" = "$UNSET_MARK" ]; then
-            kwriteconfig6 --file "$file" --group "$group" --key "$key" --delete
+            kconfig kwriteconfig6 "$file" "$group" --key "$key" --delete
         else
-            kwriteconfig6 --file "$file" --group "$group" --key "$key" "$value"
+            kconfig kwriteconfig6 "$file" "$group" --key "$key" "$value"
         fi
         case "$file|$group|$key" in
         "kdeglobals|General|ColorScheme") [ "$value" = "$UNSET_MARK" ] || orig_scheme="$value" ;;
@@ -227,6 +227,12 @@ for f in "$APPS_DIR"/*.desktop; do
     if [ -f "$f" ] && grep -qxF "$DESKTOP_MARKER" "$f"; then safe_remove "$f"; fi
 done
 kbuildsycoca6 >/dev/null 2>&1 || true
+# Hand Ctrl+Alt+T back to Konsole in the running session too, when it had its default before.
+if [ -z "$(kconfig kreadconfig6 kglobalshortcutsrc "services][org.kde.konsole.desktop" --key _launch)" ]; then
+    set_live_shortcut com.mitchellh.ghostty.desktop _launch Ghostty "[]" || true
+    set_live_shortcut org.kde.konsole.desktop _launch Konsole "[([201326676],)]" ||
+        warn "Could not update shortcuts in the running session; Ctrl+Alt+T returns to Konsole after next login"
+fi
 
 safe_remove "$PLASMONK_BIN_LINK"
 safe_remove "$PLASMONK_SHARE"

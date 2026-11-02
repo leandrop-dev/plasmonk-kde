@@ -168,7 +168,7 @@ for entry in "${MANAGED_KEYS[@]}"; do
     if [ "$first_install" -eq 0 ] && grep -qF "$file"$'\t'"$group"$'\t'"$key"$'\t' "$ORIGINAL_SETTINGS"; then
         continue
     fi
-    value="$(kreadconfig6 --file "$file" --group "$group" --key "$key" --default "$UNSET_MARK")"
+    value="$(kconfig kreadconfig6 "$file" "$group" --key "$key" --default "$UNSET_MARK")"
     value="${value//$'\n'/\\n}"   # one line per entry; uninstall.sh reverses this
     printf '%s\t%s\t%s\t%s\n' "$file" "$group" "$key" "$value" >>"$ORIGINAL_SETTINGS"
     recorded=$((recorded + 1))

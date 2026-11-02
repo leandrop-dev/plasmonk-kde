@@ -88,7 +88,31 @@ MANAGED_KEYS=(
     "kdeglobals|General|TerminalApplication"
     "kdeglobals|General|TerminalService"
     "konsolerc|Desktop Entry|DefaultProfile"
+    # KDE's shortcut daemon reads Konsole's default (Ctrl+Alt+T) from /usr/share/kglobalaccel, not
+    # from the applications/ override, so Konsole's own entry is cleared too.
+    "kglobalshortcutsrc|services][org.kde.konsole.desktop|_launch"
 )
+
+# Runs kreadconfig6/kwriteconfig6 ($1) on file $2, group path $3, then the remaining arguments.
+# Nested groups are written as in the file: "services][org.kde.konsole.desktop".
+kconfig() {
+    local tool="$1" file="$2" path="$3"
+    shift 3
+    local args=(--file "$file")
+    while [[ "$path" == *"]["* ]]; do
+        args+=(--group "${path%%"]["*}")
+        path="${path#*"]["}"
+    done
+    "$tool" "${args[@]}" --group "$path" "$@"
+}
+
+# Sets the keys of a global shortcut in the running session ($1 = desktop file id, $2 = action,
+# $3 = friendly name, $4 = GVariant key list such as "[]" or "[([201326676],)]"). KDE's shortcut
+# daemon keeps its own copy in memory and would write it back over kglobalshortcutsrc.
+set_live_shortcut() {
+    gdbus call --session --dest org.kde.kglobalaccel --object-path /kglobalaccel \
+        --method org.kde.KGlobalAccel.setForeignShortcutKeys "['$1', '$2', '$3', '$3']" "@a(ai) $4" >/dev/null 2>&1
+}
 
 # Config files (relative to XDG_CONFIG_HOME) that plasmonk renders over. install.sh keeps your
 # original once in ORIGINALS_DIR (or a .none marker if there was none); uninstall.sh puts it back.
