@@ -1,0 +1,354 @@
+#!/usr/bin/env bash
+# plasmonk: apply and manage the Plasmonk KDE theme.
+set -euo pipefail
+
+SELF="$(readlink -f "${BASH_SOURCE[0]}")"
+ROOT="$(cd "$(dirname "$SELF")/.." && pwd)"
+# shellcheck source=SCRIPTDIR/../lib/common.sh
+. "$ROOT/lib/common.sh"
+
+THEME_SRC="$ROOT/themes/mystical"
+TEMPLATES="$THEME_SRC/templates"
+PRESETS_FILE="$ROOT/presets.conf"
+DEFAULT_PRESET="blue"
+AURORAE_BUTTONS=(close maximize restore minimize keepabove keepbelow alldesktops)
+
+usage() {
+    cat <<'EOF'
+Usage: plasmonk <command> [options]
+
+  apply                       Re-apply the last palette (default: blue preset)
+  apply --preset NAME         Use a named preset from presets.conf
+  apply --seed '#RRGGBB'      Derive the palette from any color
+  apply --wallpaper [PATH]    Derive the palette from PATH (also sets it as wallpaper),
+                              or from the current wallpaper; keeps following wallpaper changes
+  presets                     List presets
+  menus opaque|translucent    Make Plasma popups/menus opaque or restore translucency
+  status                      Show the active palette source
+  doctor                      Check dependencies and installed components
+
+Internal (used by install.sh and the systemd watcher):
+  setup                       Deploy theme files and select them in KDE settings
+  on-wallpaper-change         Regenerate if following the wallpaper and it changed
+EOF
+}
+
+# ---------- palette sources ----------
+
+# Your own presets in ~/.config/plasmonk/presets.conf survive reinstalls and win over the bundled ones.
+USER_PRESETS_FILE="$XDG_CONFIG_HOME/plasmonk/presets.conf"
+
+preset_files() {
+    [ ! -f "$USER_PRESETS_FILE" ] || echo "$USER_PRESETS_FILE"
+    echo "$PRESETS_FILE"
+}
+
+preset_seed() {
+    local f
+    while IFS= read -r f; do
+        sed -n "s/^$1=//p" "$f"
+    done < <(preset_files) | sed -n 1p   # sed reads all input: no SIGPIPE under pipefail
+}
+
+# Prints the image path of the first desktop's wallpaper (org.kde.image plugin).
+current_wallpaper() {
+    [ -f "$APPLETSRC" ] || return 1
+    local img
+    img="$(awk '
+        /^\[Containments\]\[[0-9]+\]\[Wallpaper\]\[org\.kde\.image\]\[General\]$/ { grab = 1; next }
+        /^\[/ { grab = 0 }
+        grab && /^Image=/ { sub(/^Image=/, ""); print; exit }
+    ' "$APPLETSRC")"
+    img="${img#file://}"
+    [ -n "$img" ] || return 1
+    printf '%s\n' "$img"
+}
+
+# Wallpaper packages are directories; pick the largest dark variant, else the largest image.
+resolve_image() {
+    local path="${1%/}" dir
+    if [ -d "$path" ]; then
+        for dir in "$path/contents/images_dark" "$path/contents/images"; do
+            if [ -d "$dir" ]; then
+                # shellcheck disable=SC2012  # ls -S is the simplest size sort; names are plain
+                path="$dir/$(ls -S "$dir" | sed -n 1p)"
+                break
+            fi
+        done
+    fi
+    [ -f "$path" ] || return 1
+    printf '%s\n' "$path"
+}
+
+# Identifies a wallpaper version: path + modification time.
+image_signature() {
+    printf '%s@%s\n' "$1" "$(stat -c %Y "$1")"
+}
+
+# ---------- rendering ----------
+
+write_matugen_config() {
+    local cfg="$PLASMONK_STATE/matugen.toml" b
+    mkdir -p "$PLASMONK_STATE"
+    {
+        echo "[config]"
+        echo
+        echo "[templates.colors]"
+        echo "input_path = \"$TEMPLATES/plasmonk.colors\""
+        echo "output_path = \"$PLASMONK_STATE/$PLASMONK_NAME.colors\""
+        echo
+        echo "[templates.kvantum-svg]"
+        echo "input_path = \"$TEMPLATES/kvantum/Plasmonk.svg\""
+        echo "output_path = \"$KVANTUM_DIR/$PLASMONK_NAME.svg\""
+        echo
+        echo "[templates.kvantum-config]"
+        echo "input_path = \"$TEMPLATES/kvantum/Plasmonk.kvconfig\""
+        echo "output_path = \"$KVANTUM_DIR/$PLASMONK_NAME.kvconfig\""
+        echo
+        echo "[templates.rofi]"
+        echo "input_path = \"$TEMPLATES/rofi/plasmonk-colors.rasi\""
+        echo "output_path = \"$ROFI_DIR/plasmonk-colors.rasi\""
+        for b in "${AURORAE_BUTTONS[@]}"; do
+            echo
+            echo "[templates.aurorae-$b]"
+            echo "input_path = \"$TEMPLATES/aurorae/$b.svg\""
+            echo "output_path = \"$AURORAE_DIR/$b.svg\""
+        done
+    } >"$cfg"
+    printf '%s\n' "$cfg"
+}
+
+# $@: matugen source arguments, e.g. `color hex '#3e6fd9'` or `image /path.png`
+render() {
+    have matugen || die "matugen is not installed (run install.sh, or: sudo pacman -S matugen)"
+    local cfg
+    cfg="$(write_matugen_config)"
+    NO_COLOR=1 matugen -q -c "$cfg" "$@" -m dark </dev/null ||
+        die "matugen failed to render the palette"
+}
+
+# ---------- applying ----------
+
+# plasma-apply-colorscheme refuses to re-apply the active scheme, so alternate two names.
+apply_color_scheme() {
+    local current next
+    current="$(kreadconfig6 --file kdeglobals --group General --key ColorScheme)"
+    if [ "$current" = "${PLASMONK_NAME}A" ]; then next="${PLASMONK_NAME}B"; else next="${PLASMONK_NAME}A"; fi
+    mkdir -p "$COLOR_SCHEME_DIR"
+    sed -e "s/^ColorScheme=.*/ColorScheme=$next/" -e "s/^Name=.*/Name=$PLASMONK_NAME (${next: -1})/" \
+        "$PLASMONK_STATE/$PLASMONK_NAME.colors" >"$COLOR_SCHEME_DIR/$next.colors"
+    plasma-apply-colorscheme "$next" >/dev/null
+}
+
+reload_kwin() {
+    qdbus6 org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || warn "Could not ask KWin to reload (not in a Plasma session?)"
+}
+
+cmd_apply() {
+    local mode="" value="" image="" seed
+
+    case "${1:-}" in
+    --preset) mode=preset value="${2:?--preset needs a name}" ;;
+    --seed) mode=seed value="${2:?--seed needs a color like '#3e6fd9'}" ;;
+    --wallpaper) mode=wallpaper value="${2:-}" ;;
+    "")
+        mode="$(state_get mode)"
+        value="$(state_get value)"
+        [ -n "$mode" ] || { mode=preset value="$DEFAULT_PRESET"; }
+        ;;
+    *) usage >&2; exit 2 ;;
+    esac
+
+    case "$mode" in
+    preset)
+        seed="$(preset_seed "$value")"
+        [ -n "$seed" ] || die "Unknown preset '$value'. Available: $(cmd_presets | tr '\n' ' ')"
+        info "Rendering preset '$value' ($seed)"
+        render color hex "$seed"
+        ;;
+    seed)
+        [[ "$value" =~ ^#[0-9a-fA-F]{6}$ ]] || die "Seed must look like '#3e6fd9', got '$value'"
+        info "Rendering from seed $value"
+        render color hex "$value"
+        ;;
+    wallpaper)
+        if [ -n "$value" ]; then
+            image="$(resolve_image "$value")" || die "Not an image or wallpaper package: $value"
+            plasma-apply-wallpaperimage "$image" >/dev/null
+            value=""   # from now on, follow whatever the wallpaper is
+        else
+            local wp
+            wp="$(current_wallpaper)" || die "Could not find the current wallpaper in $APPLETSRC (only the 'Image' wallpaper type is supported)"
+            image="$(resolve_image "$wp")" || die "The current wallpaper does not exist on disk: $wp"
+        fi
+        info "Rendering from wallpaper $image"
+        render image "$image" --source-color-index 0
+        state_set image_sig "$(image_signature "$image")"
+        ;;
+    *) die "Corrupt state file: unknown mode '$mode' in $PLASMONK_STATE_FILE" ;;
+    esac
+
+    apply_color_scheme
+    reload_kwin
+    state_set mode "$mode"
+    state_set value "$value"
+    ok "Applied. Already-running Qt apps pick up Kvantum colors after a restart."
+}
+
+cmd_on_wallpaper_change() {
+    [ "$(state_get mode)" = wallpaper ] || exit 0
+    local wp image
+    wp="$(current_wallpaper)" || exit 0
+    image="$(resolve_image "$wp")" || { warn "Wallpaper not found on disk: $wp"; exit 0; }
+    [ "$(image_signature "$image")" != "$(state_get image_sig)" ] || exit 0
+    cmd_apply --wallpaper ""
+}
+
+cmd_presets() {
+    local f
+    while IFS= read -r f; do
+        sed -n 's/^\([a-z0-9-]*\)=.*/\1/p' "$f"
+    done < <(preset_files) | sort -u
+}
+
+cmd_status() {
+    local mode
+    mode="$(state_get mode)"
+    if [ -z "$mode" ]; then echo "No palette applied yet."; return; fi
+    echo "mode:   $mode"
+    [ -z "$(state_get value)" ] || echo "value:  $(state_get value)"
+    [ "$mode" != wallpaper ] || echo "image:  $(state_get image_sig)"
+    echo "scheme: $(kreadconfig6 --file kdeglobals --group General --key ColorScheme)"
+}
+
+# ---------- setup ----------
+
+# Copies the Plasma style, gzipping SVGs to .svgz. $1 = opaque|translucent
+deploy_plasma_style() {
+    local variant="$1" src="$THEME_SRC/plasma/$PLASMONK_NAME" svg rel out
+    rm -rf "$PLASMA_THEME_DIR"
+    mkdir -p "$PLASMA_THEME_DIR"
+    cp "$src/metadata.json" "$src/plasmarc" "$PLASMA_THEME_DIR/"
+    while IFS= read -r -d '' svg; do
+        rel="${svg#"$src"/}"
+        out="$PLASMA_THEME_DIR/${rel%.svg}.svgz"
+        mkdir -p "$(dirname "$out")"
+        if [ "$rel" = widgets/checkmarks.svg ]; then
+            cp "$svg" "$PLASMA_THEME_DIR/$rel"   # shipped uncompressed upstream; keep it that way
+        elif [ "$variant" = opaque ] && { [ "$rel" = dialogs/background.svg ] || [ "$rel" = widgets/translucentbackground.svg ]; }; then
+            # Upstream issue #18: popups/menus are 80% opaque; make the frame fully opaque.
+            sed -E 's/(^|[;"])opacity:0\.8(0000001)?([;"])/\1opacity:1\3/g' "$svg" | gzip -9n >"$out"
+        else
+            gzip -9nc "$svg" >"$out"
+        fi
+    done < <(find "$src" -name '*.svg' -print0)
+}
+
+# Forces Plasma to reload the style: its SVG cache is keyed by theme name, and re-applying
+# the active theme is a no-op, so drop the cache and switch away and back.
+reload_plasma_style() {
+    rm -f "${XDG_CACHE_HOME:-$HOME/.cache}"/plasma_theme_"$PLASMONK_NAME"*.kcache \
+        "${XDG_CACHE_HOME:-$HOME/.cache}"/plasma-svgelements-"$PLASMONK_NAME"*
+    plasma-apply-desktoptheme breeze-dark >/dev/null || true
+    plasma-apply-desktoptheme "$PLASMONK_NAME" >/dev/null
+}
+
+cmd_setup() {
+    info "Deploying theme files"
+    deploy_plasma_style "$(state_get menus || true)"
+
+    rm -rf "$AURORAE_DIR"
+    mkdir -p "$AURORAE_DIR"
+    cp "$THEME_SRC"/aurorae/* "$AURORAE_DIR/"
+
+    mkdir -p "$KVANTUM_DIR" "$ROFI_DIR"
+    if [ -f "$ROFI_DIR/config.rasi" ] && ! cmp -s "$ROFI_DIR/config.rasi" "$THEME_SRC/rofi/config.rasi"; then
+        warn "Replacing your existing $ROFI_DIR/config.rasi (install.sh backed it up)"
+    fi
+    cp "$THEME_SRC/rofi/config.rasi" "$ROFI_DIR/config.rasi"
+
+    info "Selecting Plasmonk components in KDE settings"
+    plasma-apply-desktoptheme "$PLASMONK_NAME" >/dev/null || true
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library org.kde.kwin.aurorae
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__$PLASMONK_NAME"
+    kwriteconfig6 --file "$XDG_CONFIG_HOME/Kvantum/kvantum.kvconfig" --group General --key theme "$PLASMONK_NAME"
+    kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle kvantum
+    # Upstream issue #11: a custom or wallpaper accent overrides the scheme's own accent.
+    kwriteconfig6 --file kdeglobals --group General --key AccentColor --delete
+    kwriteconfig6 --file kdeglobals --group General --key accentColorFromWallpaper false
+    kwriteconfig6 --file kdeglobals --group General --key fixed "JetBrainsMono Nerd Font Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+    if [ -d /usr/share/icons/YAMIS ]; then
+        /usr/lib/plasma-changeicons YAMIS >/dev/null 2>&1 || warn "Could not switch icons to YAMIS"
+    fi
+    ok "Theme files deployed"
+}
+
+cmd_menus() {
+    case "${1:-}" in
+    opaque | translucent) ;;
+    *) die "Usage: plasmonk menus opaque|translucent" ;;
+    esac
+    state_set menus "$1"
+    deploy_plasma_style "$1"
+    reload_plasma_style
+    ok "Plasma popups and menus are now $1"
+}
+
+# ---------- doctor ----------
+
+cmd_doctor() {
+    local problems=0 pkg
+
+    check() { # $1 = description, rest = command
+        local what="$1"; shift
+        if "$@" >/dev/null 2>&1; then ok "$what"; else warn "$what: MISSING"; problems=$((problems + 1)); fi
+    }
+
+    for pkg in matugen kvantum ttf-jetbrains-mono-nerd rofi yamis-icon-theme-git kwin-effects-better-blur-dx plasma6-applets-panel-colorizer; do
+        check "package $pkg" pacman -Q "$pkg"
+    done
+    check "Plasma style installed" test -f "$PLASMA_THEME_DIR/metadata.json"
+    check "window decoration installed" test -f "$AURORAE_DIR/close.svg"
+    check "Kvantum theme rendered" test -f "$KVANTUM_DIR/$PLASMONK_NAME.kvconfig"
+    check "wallpaper watcher enabled" systemctl --user is-enabled plasmonk-wallpaper.path
+
+    # Upstream issue #10: Better Blur is compiled against one KWin version and breaks after
+    # KWin upgrades. Heuristic: warn when KWin was installed after the effect was built.
+    if pacman -Q kwin-effects-better-blur-dx >/dev/null 2>&1; then
+        local built kwin_installed
+        built="$(date -d "$(pacman -Qi kwin-effects-better-blur-dx | sed -n 's/^Build Date *: //p')" +%s)"
+        kwin_installed="$(date -d "$(pacman -Qi kwin | sed -n 's/^Install Date *: //p')" +%s)"
+        if [ "$kwin_installed" -gt "$built" ]; then
+            warn "KWin was upgraded after Better Blur DX was built; if blur stopped working run: paru -S --rebuild kwin-effects-better-blur-dx"
+            problems=$((problems + 1))
+        else
+            ok "Better Blur DX was built after the installed KWin"
+        fi
+    fi
+
+    if [ "$problems" -eq 0 ]; then
+        ok "All checks passed"
+    else
+        warn "$problems check(s) need attention"
+        return 1
+    fi
+}
+
+main() {
+    refuse_root
+    local cmd="${1:-}"
+    [ $# -eq 0 ] || shift
+    case "$cmd" in
+    apply) cmd_apply "$@" ;;
+    presets) cmd_presets ;;
+    menus) cmd_menus "$@" ;;
+    status) cmd_status ;;
+    doctor) cmd_doctor ;;
+    setup) cmd_setup ;;
+    on-wallpaper-change) cmd_on_wallpaper_change ;;
+    -h | --help | help | "") usage ;;
+    *) usage >&2; exit 2 ;;
+    esac
+}
+
+main "$@"

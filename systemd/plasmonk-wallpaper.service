@@ -1,0 +1,8 @@
+[Unit]
+Description=Regenerate Plasmonk colors from the wallpaper
+
+[Service]
+Type=oneshot
+# Plasma may write the file several times in a row; let it settle first.
+ExecStartPre=/usr/bin/sleep 1
+ExecStart=%h/.local/bin/plasmonk on-wallpaper-change

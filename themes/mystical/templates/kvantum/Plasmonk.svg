@@ -202,11 +202,11 @@
        id="linearGradient4"
        inkscape:collect="always">
       <stop
-         style="stop-color:#546996;stop-opacity:0.83600408;"
+         style="stop-color:{{palettes.secondary._40.hex}};stop-opacity:0.83600408;"
          offset="0"
          id="stop5" />
       <stop
-         style="stop-color:#232c41;stop-opacity:0;"
+         style="stop-color:{{palettes.secondary._15.hex}};stop-opacity:0;"
          offset="0.93660784"
          id="stop7" />
     </linearGradient>
@@ -214,11 +214,11 @@
        id="linearGradient1"
        inkscape:collect="always">
       <stop
-         style="stop-color:#75a5ff;stop-opacity:0.85557973;"
+         style="stop-color:{{palettes.primary._70.hex}};stop-opacity:0.85557973;"
          offset="0"
          id="stop1" />
       <stop
-         style="stop-color:#2c374e;stop-opacity:0;"
+         style="stop-color:{{palettes.secondary._20.hex}};stop-opacity:0;"
          offset="0.91021651"
          id="stop3" />
     </linearGradient>
@@ -430,11 +430,11 @@
        inkscape:collect="always"
        id="linearGradient2010">
       <stop
-         style="stop-color:#3584e4;stop-opacity:1"
+         style="stop-color:{{palettes.primary._50.hex}};stop-opacity:1"
          offset="0"
          id="stop2006" />
       <stop
-         style="stop-color:#62a0ea;stop-opacity:1"
+         style="stop-color:{{palettes.primary._60.hex}};stop-opacity:1"
          offset="1"
          id="stop2008" />
     </linearGradient>
@@ -1565,7 +1565,7 @@
        y="-506.00006"
        width="40"
        height="40"
-       style="color:#3daee9;opacity:0.00100002;fill:#000000" />
+       style="color:{{palettes.primary._50.hex}};opacity:0.00100002;fill:#000000" />
     <g
        id="common-normal-topleft"
        transform="translate(-608.00043,96.97136)">
@@ -2145,7 +2145,7 @@
          d="m 149,444 h 8 v 8 h -8 z"
          id="itemview-toggled" />
       <rect
-         style="fill:#8db1ff;fill-opacity:0.87025672;fill-rule:evenodd"
+         style="fill:{{palettes.primary._70.hex}};fill-opacity:0.87025672;fill-rule:evenodd"
          height="8"
          width="4"
          y="444"
@@ -2153,12 +2153,12 @@
          id="itemview-toggled-right" />
       <path
          inkscape:connector-curvature="0"
-         style="fill:#8db1ff;fill-opacity:0.87025672;fill-rule:evenodd"
+         style="fill:{{palettes.primary._70.hex}};fill-opacity:0.87025672;fill-rule:evenodd"
          d="m 157,440 h 4 v 4 h -4 z"
          id="itemview-toggled-topright" />
       <path
          inkscape:connector-curvature="0"
-         style="fill:#8db1ff;fill-opacity:0.87025672;fill-rule:evenodd"
+         style="fill:{{palettes.primary._70.hex}};fill-opacity:0.87025672;fill-rule:evenodd"
          d="m 157,452 h 4 v 4 h -4 z"
          id="itemview-toggled-bottomright" />
       <rect
@@ -4361,7 +4361,7 @@
     <g
        id="spin-separator-top-normal"
        transform="translate(0,-378)"
-       style="color:#000000;fill:#22252e;fill-rule:evenodd;stroke-width:3;stroke-linecap:round;stroke-linejoin:round">
+       style="color:#000000;fill:{{palettes.neutral_variant._15.hex}};fill-rule:evenodd;stroke-width:3;stroke-linecap:round;stroke-linejoin:round">
       <path
          d="m 265,475 h 2 v 4 h -2 z"
          style="opacity:0.18;fill:#ffffff"
@@ -4376,7 +4376,7 @@
     <g
        id="spin-separator-bottom-normal"
        transform="matrix(1,0,0,-1,0,586)"
-       style="color:#000000;fill:#22252e;fill-rule:evenodd;stroke-width:3;stroke-linecap:round;stroke-linejoin:round">
+       style="color:#000000;fill:{{palettes.neutral_variant._15.hex}};fill-rule:evenodd;stroke-width:3;stroke-linecap:round;stroke-linejoin:round">
       <path
          d="m 265,475 h 2 v 4 h -2 z"
          style="opacity:0.18;fill:#ffffff"
@@ -6244,401 +6244,401 @@
     <g
        id="combo-focused-left"
        transform="matrix(0.8,0,0,0.98461538,48,-32.001575)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
          id="path1444"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1446"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-focused-bottomleft"
        transform="matrix(0,-0.8,0.8,0,31.99872,70.999901)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
          id="path1449"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1451"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-focused-bottom"
        transform="matrix(0,-0.8,0.98461538,0,22.99842,70.999901)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
          id="path1454"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1456"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-focused-bottomright"
        transform="matrix(-0.8,0,0,-0.8,125.9999,87.001281)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
          id="path1459"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1461"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-focused-right"
        transform="matrix(-0.8,0,0,0.98461538,126,-32.001575)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
          id="path1464"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1466"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-focused-topright"
        transform="matrix(0,0.8,-0.8,0,142.00128,-6.9999012)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
          id="path1469"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1471"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-focused-top"
        transform="matrix(0,0.8,-0.98461538,0,151.00158,-7.0000002)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
          id="path1474"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1476"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-focused-topleft"
        transform="matrix(0.8,0,0,0.8,48,-23.00128)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
          id="path1479"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1481"
          inkscape:connector-curvature="0" />
     </g>
     <path
        id="combo-focused"
        d="m 71,16 v 32 h 32 V 16 Z"
-       style="fill:#808fae;fill-rule:evenodd;fill-opacity:0.33065167"
+       style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;fill-opacity:0.33065167"
        inkscape:connector-curvature="0" />
     <g
        id="combo-pressed-left"
        transform="matrix(0.8,0,0,0.98461538,98,-32.001575)"
-       style="fill:#7d8cad;fill-opacity:0.20784314">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#7d8cad;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.20784314"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.20784314"
          id="path1485"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#7d8cad;fill-opacity:0.20784314"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314"
          id="path1487"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-pressed-bottomleft"
        transform="matrix(0,-0.8,0.8,0,81.99872,71)"
-       style="fill:#7d8cad;fill-opacity:0.20784314">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#7d8cad;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.20784314"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.20784314"
          id="path1490"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#7d8cad;fill-opacity:0.20784314"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314"
          id="path1492"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-pressed-bottom"
        transform="matrix(0,-0.8,0.98461538,0,72.99842,71)"
-       style="fill:#7d8cad;fill-opacity:0.20784314">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#7d8cad;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.20784314"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.20784314"
          id="path1495"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#7d8cad;fill-opacity:0.20784314"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314"
          id="path1497"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-pressed-bottomright"
        transform="matrix(-0.8,0,0,-0.8,175.9999,87.001281)"
-       style="fill:#7d8cad;fill-opacity:0.20784314">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#7d8cad;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.20784314"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.20784314"
          id="path1500"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#7d8cad;fill-opacity:0.20784314"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314"
          id="path1502"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-pressed-right"
        transform="matrix(-0.8,0,0,0.98461538,176,-32.001575)"
-       style="fill:#7d8cad;fill-opacity:0.20784314">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#7d8cad;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.20784314"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.20784314"
          id="path1505"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#7d8cad;fill-opacity:0.20784314"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314"
          id="path1507"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-pressed-topright"
        transform="matrix(0,0.8,-0.8,0,192.00128,-6.9999012)"
-       style="fill:#7d8cad;fill-opacity:0.20784314">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#7d8cad;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.20784314"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.20784314"
          id="path1510"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#7d8cad;fill-opacity:0.20784314"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314"
          id="path1512"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-pressed-top"
        transform="matrix(0,0.8,-0.98461538,0,201.00158,-7.0000002)"
-       style="fill:#7d8cad;fill-opacity:0.20784314">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#7d8cad;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.20784314"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.20784314"
          id="path1515"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#7d8cad;fill-opacity:0.20784314"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314"
          id="path1517"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-pressed-topleft"
        transform="matrix(0.8,0,0,0.8,98,-23.00128)"
-       style="fill:#7d8cad;fill-opacity:0.20784314">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#7d8cad;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.20784314"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.20784314"
          id="path1520"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#7d8cad;fill-opacity:0.20784314"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.20784314"
          id="path1522"
          inkscape:connector-curvature="0" />
     </g>
     <path
        id="combo-pressed"
        d="m 121,16 v 32 h 32 V 16 Z"
-       style="fill:#7d8cad;fill-rule:evenodd;fill-opacity:0.20784314"
+       style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;fill-opacity:0.20784314"
        inkscape:connector-curvature="0" />
     <g
        id="combo-toggled-left"
        transform="matrix(0.8,0,0,0.98461538,148,-32.001575)"
-       style="fill:#51607f;fill-opacity:0.39118311">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118311"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118311"
          id="path1526"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118311"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311"
          id="path1528"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-toggled-bottomleft"
        transform="matrix(0,-0.8,0.8,0,131.99872,70.999901)"
-       style="fill:#51607f;fill-opacity:0.39118311">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118311"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118311"
          id="path1531"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118311"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311"
          id="path1533"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-toggled-bottom"
        transform="matrix(0,-0.8,0.98461538,0,122.99842,70.999901)"
-       style="fill:#51607f;fill-opacity:0.39118311">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118311"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118311"
          id="path1536"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118311"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311"
          id="path1538"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-toggled-bottomright"
        transform="matrix(-0.8,0,0,-0.8,225.9999,87.001281)"
-       style="fill:#51607f;fill-opacity:0.39118311">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118311"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118311"
          id="path1541"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118311"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311"
          id="path1543"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-toggled-right"
        transform="matrix(-0.8,0,0,0.98461538,226,-32.001575)"
-       style="fill:#51607f;fill-opacity:0.39118311">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118311"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118311"
          id="path1546"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118311"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311"
          id="path1548"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-toggled-topright"
        transform="matrix(0,0.8,-0.8,0,242.00128,-6.9999012)"
-       style="fill:#51607f;fill-opacity:0.39118311">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118311"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118311"
          id="path1551"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118311"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311"
          id="path1553"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-toggled-top"
        transform="matrix(0,0.8,-0.98461538,0,251.00158,-7.0000002)"
-       style="fill:#51607f;fill-opacity:0.39118311">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118311"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118311"
          id="path1556"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118311"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311"
          id="path1558"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="combo-toggled-topleft"
        transform="matrix(0.8,0,0,0.8,148,-23.00128)"
-       style="fill:#51607f;fill-opacity:0.39118311">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118311"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118311"
          id="path1561"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118311"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118311"
          id="path1563"
          inkscape:connector-curvature="0" />
     </g>
     <path
        id="combo-toggled"
        d="m 171,16 v 32 h 32 V 16 Z"
-       style="fill:#51607f;fill-rule:evenodd;fill-opacity:0.39118311"
+       style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;fill-opacity:0.39118311"
        inkscape:connector-curvature="0" />
     <rect
        id="expand-combo-normal"
@@ -6880,401 +6880,401 @@
     <g
        id="button-focused-left"
        transform="matrix(0.8,0,0,0.98461538,47.999901,-87.001576)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
          id="path1638"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1640"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-focused-bottomleft"
        transform="matrix(0,-0.8,0.8,0,31.99862,15.9999)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
          id="path1643"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1645"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-focused-bottom"
        transform="matrix(0,-0.8,0.98461538,0,22.998325,15.9999)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
          id="path1648"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1650"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-focused-bottomright"
        transform="matrix(-0.8,0,0,-0.8,125.9998,32.00128)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
          id="path1653"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1655"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-focused-right"
        transform="matrix(-0.8,0,0,0.98461538,125.9999,-87.001576)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
          id="path1658"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1660"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-focused-topright"
        transform="matrix(0,0.8,-0.8,0,142.00118,-61.999902)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
          id="path1663"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1665"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-focused-top"
        transform="matrix(0,0.8,-0.98461538,0,151.00148,-62.000001)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.33065167"
          id="path1668"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1670"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-focused-topleft"
        transform="matrix(0.8,0,0,0.8,47.999901,-78.001281)"
-       style="fill:#808fae;fill-opacity:0.33065167">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#808fae;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.33065167"
          id="path1673"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fae;fill-opacity:0.33065167"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.33065167"
          id="path1675"
          inkscape:connector-curvature="0" />
     </g>
     <path
        id="button-focused"
        d="m 70.999901,-39.000001 v 32 H 102.9999 v -32 z"
-       style="fill:#808fae;fill-rule:evenodd;fill-opacity:0.33065167"
+       style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;fill-opacity:0.33065167"
        inkscape:connector-curvature="0" />
     <g
        id="button-pressed-left"
        transform="matrix(0.8,0,0,0.98461538,97.999901,-87.001576)"
-       style="fill:#808fad;fill-opacity:0.2077598">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#808fad;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.2077598"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.2077598"
          id="path1679"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fad;fill-opacity:0.2077598"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598"
          id="path1681"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-pressed-bottomleft"
        transform="matrix(0,-0.8,0.8,0,81.998621,15.999999)"
-       style="fill:#808fad;fill-opacity:0.2077598">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#808fad;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.2077598"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.2077598"
          id="path1684"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fad;fill-opacity:0.2077598"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598"
          id="path1686"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-pressed-bottom"
        transform="matrix(0,-0.8,0.98461538,0,72.998326,15.999999)"
-       style="fill:#808fad;fill-opacity:0.2077598">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#808fad;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.2077598"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.2077598"
          id="path1689"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fad;fill-opacity:0.2077598"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598"
          id="path1691"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-pressed-bottomright"
        transform="matrix(-0.8,0,0,-0.8,175.9998,32.00128)"
-       style="fill:#808fad;fill-opacity:0.2077598">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#808fad;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.2077598"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.2077598"
          id="path1694"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fad;fill-opacity:0.2077598"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598"
          id="path1696"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-pressed-right"
        transform="matrix(-0.8,0,0,0.98461538,175.9999,-87.001576)"
-       style="fill:#808fad;fill-opacity:0.2077598">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#808fad;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.2077598"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.2077598"
          id="path1699"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fad;fill-opacity:0.2077598"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598"
          id="path1701"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-pressed-topright"
        transform="matrix(0,0.8,-0.8,0,192.00118,-61.999902)"
-       style="fill:#808fad;fill-opacity:0.2077598">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#808fad;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.2077598"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.2077598"
          id="path1704"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fad;fill-opacity:0.2077598"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598"
          id="path1706"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-pressed-top"
        transform="matrix(0,0.8,-0.98461538,0,201.00148,-62.000001)"
-       style="fill:#808fad;fill-opacity:0.2077598">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#808fad;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.2077598"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.2077598"
          id="path1709"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fad;fill-opacity:0.2077598"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598"
          id="path1711"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-pressed-topleft"
        transform="matrix(0.8,0,0,0.8,97.999901,-78.001281)"
-       style="fill:#808fad;fill-opacity:0.2077598">
+       style="fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#808fad;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.2077598"
+         style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.2077598"
          id="path1714"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#808fad;fill-opacity:0.2077598"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._60.hex}};fill-opacity:0.2077598"
          id="path1716"
          inkscape:connector-curvature="0" />
     </g>
     <path
        id="button-pressed"
        d="m 120.9999,-39.000001 v 32 h 32 v -32 z"
-       style="fill:#808fad;fill-rule:evenodd;fill-opacity:0.2077598"
+       style="fill:{{palettes.secondary._60.hex}};fill-rule:evenodd;fill-opacity:0.2077598"
        inkscape:connector-curvature="0" />
     <g
        id="button-toggled-left"
        transform="matrix(0.8,0,0,0.98461538,147.9999,-87.001576)"
-       style="fill:#51607f;fill-opacity:0.39118305">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118305"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118305"
          id="path1720"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118305"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305"
          id="path1722"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-toggled-bottomleft"
        transform="matrix(0,-0.8,0.8,0,131.99862,15.9999)"
-       style="fill:#51607f;fill-opacity:0.39118305">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118305"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118305"
          id="path1725"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118305"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305"
          id="path1727"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-toggled-bottom"
        transform="matrix(0,-0.8,0.98461538,0,122.99832,15.9999)"
-       style="fill:#51607f;fill-opacity:0.39118305">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118305"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118305"
          id="path1730"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118305"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305"
          id="path1732"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-toggled-bottomright"
        transform="matrix(-0.8,0,0,-0.8,225.9998,32.00128)"
-       style="fill:#51607f;fill-opacity:0.39118305">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118305"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118305"
          id="path1735"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118305"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305"
          id="path1737"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-toggled-right"
        transform="matrix(-0.8,0,0,0.98461538,225.9999,-87.001576)"
-       style="fill:#51607f;fill-opacity:0.39118305">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118305"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118305"
          id="path1740"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118305"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305"
          id="path1742"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-toggled-topright"
        transform="matrix(0,0.8,-0.8,0,242.00118,-61.999902)"
-       style="fill:#51607f;fill-opacity:0.39118305">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118305"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118305"
          id="path1745"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118305"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305"
          id="path1747"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-toggled-top"
        transform="matrix(0,0.8,-0.98461538,0,251.00148,-62.000001)"
-       style="fill:#51607f;fill-opacity:0.39118305">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305">
       <path
          transform="matrix(1.25,0,0,1.015625,21.249876,27.423476)"
          d="M 2,21 V 53 H 6 V 21 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118305"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.88752031;fill-opacity:0.39118305"
          id="path1750"
          inkscape:connector-curvature="0" />
       <path
          d="m 21.25,48.7516 v 32.5 h 2.5 v -32.5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118305"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305"
          id="path1752"
          inkscape:connector-curvature="0" />
     </g>
     <g
        id="button-toggled-topleft"
        transform="matrix(0.8,0,0,0.8,147.9999,-78.001281)"
-       style="fill:#51607f;fill-opacity:0.39118305">
+       style="fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305">
       <path
          transform="matrix(1.25,0,0,1.25,21.249876,22.501601)"
          d="M 6,17 C 3.5,17 2,18.5 2,21 H 6 Z"
-         style="fill:#51607f;fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118305"
+         style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;stroke-width:0.80000001;fill-opacity:0.39118305"
          id="path1755"
          inkscape:connector-curvature="0" />
       <path
          d="m 28.75,41.2516 c -4.125,-5.1e-5 -7.50003,3.37497 -7.5,7.5 h 2.5 c 0,-3.125 1.875,-5 5,-5 z"
-         style="color:#000000;text-indent:0;text-transform:none;fill:#51607f;fill-opacity:0.39118305"
+         style="color:#000000;text-indent:0;text-transform:none;fill:{{palettes.secondary._40.hex}};fill-opacity:0.39118305"
          id="path1757"
          inkscape:connector-curvature="0" />
     </g>
     <path
        id="button-toggled"
        d="m 170.9999,-39.000001 v 32 h 32 v -32 z"
-       style="fill:#51607f;fill-rule:evenodd;fill-opacity:0.39118305"
+       style="fill:{{palettes.secondary._40.hex}};fill-rule:evenodd;fill-opacity:0.39118305"
        inkscape:connector-curvature="0" />
     <rect
        id="expand-button-normal"
@@ -7285,7 +7285,7 @@
        style="fill-rule:evenodd" />
   </g>
   <rect
-     style="opacity:0.75;fill:none;fill-opacity:1;stroke:#62a0ea;stroke-width:1.30000007;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+     style="opacity:0.75;fill:none;fill-opacity:1;stroke:{{palettes.primary._60.hex}};stroke-width:1.30000007;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
      id="rect2173"
      width="62.894642"
      height="60.540295"

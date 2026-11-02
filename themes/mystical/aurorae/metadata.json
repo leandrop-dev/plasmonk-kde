@@ -12,9 +12,9 @@
             "aurorae"
         ],
         "EnabledByDefault": true,
-        "Name": "JuxDeco",
+        "Name": "Plasmonk",
         "Description" : "JuxDeco minimal and colored window decorations",
-        "Id": "JuxDeco",
+        "Id": "Plasmonk",
         "License": "GPL v3",
         "Version": "1.0",
         "X-KDE-PluginInfo-blur": true,

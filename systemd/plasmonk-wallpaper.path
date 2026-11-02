@@ -1,0 +1,11 @@
+[Unit]
+Description=Watch the Plasma wallpaper setting for Plasmonk
+
+[Path]
+# Plasma rewrites this file when the wallpaper changes. plasmonk ignores the event unless it is
+# following the wallpaper (`plasmonk apply --wallpaper`) and the image actually changed.
+PathChanged=%h/.config/plasma-org.kde.plasma.desktop-appletsrc
+Unit=plasmonk-wallpaper.service
+
+[Install]
+WantedBy=default.target

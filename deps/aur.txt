@@ -1,0 +1,4 @@
+# AUR packages (paru or yay). One per line; comments allowed.
+yamis-icon-theme-git
+kwin-effects-better-blur-dx
+plasma6-applets-panel-colorizer

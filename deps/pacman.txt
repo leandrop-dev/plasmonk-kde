@@ -1,0 +1,5 @@
+# Official repo packages (pacman). One per line; comments allowed.
+matugen
+kvantum
+ttf-jetbrains-mono-nerd
+rofi
