@@ -75,6 +75,7 @@ MANAGED_KEYS=(
     "kdeglobals|General|accentColorFromWallpaper"
     "kdeglobals|General|fixed"
     "kdeglobals|KDE|widgetStyle"
+    "kdeglobals|KDE|AnimationDurationFactor"
     "kdeglobals|Icons|Theme"
     "kwinrc|org.kde.kdecoration2|library"
     "kwinrc|org.kde.kdecoration2|theme"

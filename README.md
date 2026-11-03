@@ -22,17 +22,16 @@ The installer lists every package it is going to install and asks before changin
 3. installs the theme into your home folder and applies the blue preset,
 4. sets the Bibata Modern Ice cursor, YAMIS icons and Ghostty as the default terminal,
 5. offers to make zsh your login shell (`chsh`; skip with `--keep-shell`).
+6. on the first install, replaces your panels with the saved layout (keep yours with `--keep-panels`).
 
-Options: `--preset red`, `--opaque-menus`, `--skip-packages`, `--keep-shell`, `--panels`, `--yes`. Run
-`./install.sh --help`.
+Options: `--preset red`, `--opaque-menus`, `--skip-packages`, `--keep-shell`, `--panels`, `--keep-panels`,
+`--yes`. Run `./install.sh --help`.
 
 After installing, log out and back in. Then:
 
 - **Blur:** the installer replaces KWin's stock Blur with *Better Blur DX* (they conflict) and blurs the apps in
   `themes/mystical/better-blur-classes.txt`. Add more in System Settings → Window Management → Desktop Effects →
   Better Blur DX. Classes you remove stay removed on reinstall.
-- **Transparent panel:** add the *Panel Colorizer* widget to your panel → Appearance → Native Panel → uncheck
-  *Background*.
 
 ### Shortcuts
 
@@ -78,8 +77,8 @@ terminals keep the old one.
 | Icons (Yet Another Monochrome Icon Set) | `yamis-icon-theme-git` | AUR |
 | Cursor (Bibata Modern Ice) | `bibata-cursor-theme-bin` | AUR |
 | Window blur | `kwin-effects-better-blur-dx` | AUR |
-| Transparent panel | `plasma6-applets-panel-colorizer` | AUR |
-| Flexible panel spacer (used by the saved layout) | `plasma6-applets-panel-spacer-extended` | AUR |
+| Panel widgets used by the saved layout: Audio Visualizer (with `cava`), CatWalk, Thermal Monitor | `plasma6-applets-audio-visualizer`, `plasma6-applets-catwalk`, `plasma6-applets-thermalmonitor` | AUR |
+| Full-screen launcher (installed, not on a panel) | `plasma6-applets-plasma-drawer-git` | AUR |
 
 ## Usage
 
@@ -160,15 +159,16 @@ copy. The lock screen's wallpaper is set separately in System Settings > Screen 
 
 ## Panel layout
 
-`themes/mystical/panels/layout.js` is a saved panel layout: a top bar (launcher, pager, global menu, spacer, tray,
-clock, show desktop) and a bottom dock (Panel Colorizer + icon tasks). It is a Plasma layout script, the same
-format KDE global themes use, with every widget's settings.
+`themes/mystical/panels/layout.js` is a saved panel layout: a floating top bar (launcher, pager, global menu,
+audio visualizer between two spacers, CatWalk CPU meter, thermal monitor, tray, clock) and a bottom dock (icon
+tasks), both translucent. It is a Plasma layout script, the same format KDE global themes use, with every
+widget's settings. The first install applies it; later runs leave your panels alone.
 
 ```sh
 plasmonk panels save                 # save your current panels to ~/.config/plasmonk/panels.js
 plasmonk panels save FILE            # ...or anywhere, e.g. themes/mystical/panels/layout.js in this repo
 plasmonk panels restore              # replace all panels with your saved layout (else the shipped one)
-./install.sh --panels                # apply the shipped layout as part of installing
+./install.sh --panels                # apply the shipped layout on a reinstall too
 ```
 
 Restore backs up your panels first and prints how to undo. For the system tray it saves which items it holds, not

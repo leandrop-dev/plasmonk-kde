@@ -19,13 +19,15 @@ Usage: ./install.sh [options]
   --opaque-menus     Make Plasma popups and menus opaque (default: translucent)
   --skip-packages    Do not install packages; only install the theme
   --keep-shell       Do not offer to make zsh your login shell
-  --panels           Replace your panels with the saved Plasmonk layout (themes/mystical/panels/layout.js)
+  --panels           Replace your panels with the saved Plasmonk layout (themes/mystical/panels/layout.js).
+                     This is the default on the first install; later runs keep your panels.
+  --keep-panels      Keep your current panels, also on the first install
   -y, --yes          Do not ask for confirmation
   -h, --help         Show this help
 EOF
 }
 
-PRESET="" OPAQUE=0 SKIP_PACKAGES=0 ASSUME_YES=0 KEEP_SHELL=0 PANELS=0
+PRESET="" OPAQUE=0 SKIP_PACKAGES=0 ASSUME_YES=0 KEEP_SHELL=0 PANELS=""
 while [ $# -gt 0 ]; do
     case "$1" in
     --preset) PRESET="${2:?--preset needs a name}"; shift ;;
@@ -33,12 +35,17 @@ while [ $# -gt 0 ]; do
     --skip-packages) SKIP_PACKAGES=1 ;;
     --keep-shell) KEEP_SHELL=1 ;;
     --panels) PANELS=1 ;;
+    --keep-panels) PANELS=0 ;;
     -y | --yes) ASSUME_YES=1 ;;
     -h | --help) usage; exit 0 ;;
     *) usage >&2; die "Unknown option: $1" ;;
     esac
     shift
 done
+# The saved panel layout is part of the look: apply it on the first install unless told not to.
+if [ -z "$PANELS" ]; then
+    if [ -f "$ORIGINAL_SETTINGS" ]; then PANELS=0; else PANELS=1; fi
+fi
 
 confirm() {
     [ "$ASSUME_YES" -eq 0 ] || return 0
@@ -247,8 +254,8 @@ Next steps (manual, per upstream README):
   - Launcher: Meta+Space opens Rofi.
   - Blur: Better Blur DX is enabled for the apps in themes/mystical/better-blur-classes.txt.
     Add more in System Settings > Window Management > Desktop Effects > Better Blur DX.
-  - Transparent panel: add the "Panel Colorizer" widget to your panel, then
-    Appearance > Native Panel > uncheck "Background".
+  - Panels: the saved layout (top bar + bottom dock) is applied on the first install;
+    save your own with 'plasmonk panels save' and bring it back with 'plasmonk panels restore'.
 
 Try:  plasmonk apply --preset red  |  plasmonk apply --wallpaper  |  plasmonk wallpaper-colors  |  plasmonk doctor
 EOF

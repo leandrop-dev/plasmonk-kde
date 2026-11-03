@@ -2,6 +2,10 @@
 yamis-icon-theme-git
 bibata-cursor-theme-bin
 kwin-effects-better-blur-dx
-plasma6-applets-panel-colorizer
 oh-my-zsh-git
-plasma6-applets-panel-spacer-extended
+# Panel widgets used by the saved layout (themes/mystical/panels/layout.js)
+plasma6-applets-audio-visualizer   # pulls in cava, python-websockets, qt6-websockets
+plasma6-applets-catwalk
+plasma6-applets-thermalmonitor
+# Installed but not on a panel by default
+plasma6-applets-plasma-drawer-git

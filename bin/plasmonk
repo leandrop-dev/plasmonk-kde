@@ -16,6 +16,7 @@ DEFAULT_MENU_OPACITY="0.80"   # popups, menus and tooltips (upstream value); see
 AURORAE_BUTTONS=(close maximize restore minimize keepabove keepbelow alldesktops)
 CURSOR_THEME="Bibata-Modern-Ice"
 ICON_THEME="yet-another-monochrome-icon-set"   # YAMIS, from the upstream README
+ANIMATION_SPEED="0.25"   # kdeglobals AnimationDurationFactor: 4x faster than KDE's default 1.0
 
 usage() {
     cat <<'EOF'
@@ -498,8 +499,14 @@ cmd_setup() {
 
     info "Selecting Plasmonk components in KDE settings"
     plasma-apply-desktoptheme "$PLASMONK_NAME" >/dev/null || true
-    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library org.kde.kwin.aurorae
+    # KWin ships two Aurorae engines; prefer the newer v2 one, which System Settings picks.
+    local aurorae=org.kde.kwin.aurorae
+    if [ -f /usr/lib/qt6/plugins/org.kde.kdecoration3/org.kde.kwin.aurorae.v2.so ]; then
+        aurorae=org.kde.kwin.aurorae.v2
+    fi
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library "$aurorae"
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__$PLASMONK_NAME"
+    kwriteconfig6 --file kdeglobals --group KDE --key AnimationDurationFactor "$ANIMATION_SPEED"
     kwriteconfig6 --file "$XDG_CONFIG_HOME/Kvantum/kvantum.kvconfig" --group General --key theme "$PLASMONK_NAME"
     kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle kvantum
     # Upstream issue #11: a custom or wallpaper accent overrides the scheme's own accent.
