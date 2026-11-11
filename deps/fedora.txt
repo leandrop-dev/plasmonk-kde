@@ -1,0 +1,19 @@
+# Fedora official repo packages (dnf). One per line; comments allowed.
+# Theme
+matugen
+kvantum
+rofi
+# Terminal and shell (setup adapted from Ryoku)
+zsh
+zoxide
+fzf
+eza
+fd-find
+fastfetch
+zsh-autosuggestions
+zsh-syntax-highlighting
+jq
+ImageMagick
+# Used by the installer for the Fedora-only pieces (COPRs, git clones, Nerd Font download)
+git
+unzip

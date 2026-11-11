@@ -13,8 +13,37 @@ PLASMONK_STATE="$XDG_STATE_HOME/plasmonk"         # state file, staging output, 
 PLASMONK_STATE_FILE="$PLASMONK_STATE/state"
 PLASMONK_BACKUP_ROOT="$PLASMONK_STATE/backup"
 PLASMONK_BIN_LINK="$HOME/.local/bin/plasmonk"
+
+# ---------- distribution ----------
+
+# Linux distro family. Arch uses pacman and the AUR; Fedora uses dnf and COPR.
+detect_distro() {
+    if command -v pacman >/dev/null 2>&1; then printf '%s\n' arch
+    elif command -v dnf >/dev/null 2>&1; then printf '%s\n' fedora
+    else printf '%s\n' unknown
+    fi
+}
+DISTRO="$(detect_distro)"
+
+# Plasma's icon-switching helper lives in /usr/libexec on Fedora and /usr/lib on Arch.
 # Overridable so the sandbox test can shim it (it is not on PATH).
-PLASMA_CHANGEICONS="${PLASMA_CHANGEICONS:-/usr/lib/plasma-changeicons}"
+if [ -z "${PLASMA_CHANGEICONS:-}" ]; then
+    for _pc in /usr/lib/plasma-changeicons /usr/libexec/plasma-changeicons; do
+        if [ -x "$_pc" ]; then PLASMA_CHANGEICONS="$_pc"; break; fi
+    done
+    : "${PLASMA_CHANGEICONS:=/usr/lib/plasma-changeicons}"
+    unset _pc
+fi
+
+# Qt's D-Bus CLI is qdbus6 on Arch and qdbus-qt6 on Fedora (qt6-qttools). Overridable so the
+# sandbox test can shim it.
+if [ -z "${QDBUS:-}" ]; then
+    for _q in qdbus6 qdbus-qt6 qdbus; do
+        if command -v "$_q" >/dev/null 2>&1; then QDBUS="$_q"; break; fi
+    done
+    : "${QDBUS:=qdbus6}"
+    unset _q
+fi
 
 COLOR_SCHEME_DIR="$XDG_DATA_HOME/color-schemes"
 PLASMA_THEME_DIR="$XDG_DATA_HOME/plasma/desktoptheme/$PLASMONK_NAME"
@@ -46,6 +75,63 @@ die()  { printf '%s[x]%s %s\n' "$_c_err" "$_c_off" "$*" >&2; exit 1; }
 
 have() { command -v "$1" >/dev/null 2>&1; }
 
+# ---------- packages (per distro) ----------
+
+# True if package $1 is installed.
+pkg_installed() {
+    case "$DISTRO" in
+    arch) pacman -Q "$1" >/dev/null 2>&1 ;;
+    fedora) rpm -q "$1" >/dev/null 2>&1 ;;
+    *) return 1 ;;
+    esac
+}
+
+# Installs the given packages from the distro's main repositories (asks for sudo).
+pkg_install() {
+    case "$DISTRO" in
+    arch) sudo pacman -S --needed "$@" ;;
+    fedora) sudo dnf install -y "$@" ;;
+    *) die "Unsupported distribution: cannot install packages." ;;
+    esac
+}
+
+# Removes the given packages (asks for sudo).
+pkg_remove() {
+    case "$DISTRO" in
+    arch) sudo pacman -Rns "$@" ;;
+    fedora) sudo dnf remove -y "$@" ;;
+    *) die "Unsupported distribution: cannot remove packages." ;;
+    esac
+}
+
+# Downloads URL $1 to file $2 with curl or wget.
+download() {
+    if have curl; then curl -fsSL "$1" -o "$2"
+    elif have wget; then wget -qO "$2" "$1"
+    else warn "Neither curl nor wget is available; cannot download $1"; return 1
+    fi
+}
+
+# Prints the packages listed by a COPR mapping file ("owner/project package..." lines).
+copr_packages() {
+    read_list "$1" | awk '{$1 = ""; sub(/^[ \t]+/, ""); print}'
+}
+
+# Prints every package this distro's lists install, one per line (used by doctor).
+distro_package_names() {
+    local root="$1"
+    case "$DISTRO" in
+    arch)
+        read_list "$root/deps/pacman.txt"
+        read_list "$root/deps/aur.txt"
+        ;;
+    fedora)
+        read_list "$root/deps/fedora.txt"
+        copr_packages "$root/deps/fedora-copr.txt"
+        ;;
+    esac
+}
+
 refuse_root() {
     [ "$(id -u)" -ne 0 ] || die "Do not run this as root or with sudo; it installs into your home folder and asks for sudo itself when needed."
     [ -n "${HOME:-}" ] && [ -d "$HOME" ] || die "HOME is not set to a valid folder."
@@ -61,8 +147,22 @@ state_get() {
 state_set() {
     mkdir -p "$PLASMONK_STATE"
     local tmp="$PLASMONK_STATE_FILE.tmp"
-    { [ -f "$PLASMONK_STATE_FILE" ] && grep -v "^$1=" "$PLASMONK_STATE_FILE"; printf '%s=%s\n' "$1" "$2"; } >"$tmp"
+    {
+        # grep exits 1 when the key being replaced was the file's only line; tolerate it,
+        # otherwise set -e aborts the caller (state_add hits this on the first COPR).
+        if [ -f "$PLASMONK_STATE_FILE" ]; then grep -v "^$1=" "$PLASMONK_STATE_FILE" || true; fi
+        printf '%s=%s\n' "$1" "$2"
+    } >"$tmp"
     mv "$tmp" "$PLASMONK_STATE_FILE"
+}
+
+# Adds value $2 to the space-separated list stored under key $1, once. Used to remember the
+# Fedora-only pieces (cloned assets, enabled COPRs) so uninstall can offer to remove them.
+state_add() {
+    local key="$1" val="$2" cur
+    cur="$(state_get "$key")"
+    case " $cur " in *" $val "*) return 0 ;; esac
+    state_set "$key" "${cur:+$cur }$val"
 }
 
 # KDE settings plasmonk changes, as "file|group|key". install.sh records their original values
@@ -196,9 +296,20 @@ SDDM_SHARED_ROOT="/var/lib/plasmonk"
 SDDM_SHARED_DIR="$SDDM_SHARED_ROOT/sddm"
 SDDM_WALLPAPER="$SDDM_SHARED_DIR/wallpaper.jpg"
 
-# Prints the folder of the SDDM theme in use, if SDDM is the display manager. SDDM reads
-# /usr/lib/sddm/sddm.conf.d, then /etc/sddm.conf.d, then /etc/sddm.conf; the last value wins.
+# Prints the active display manager's unit name without the .service suffix (e.g. sddm,
+# plasmalogin), or nothing when it cannot be determined.
+login_manager() {
+    local unit
+    unit="$(readlink -f /etc/systemd/system/display-manager.service 2>/dev/null)" || return 1
+    [ -n "$unit" ] || return 1
+    printf '%s\n' "${unit##*/}" | sed 's/\.service$//'
+}
+
+# Prints the folder of the SDDM theme in use, if SDDM is installed and the display manager.
+# SDDM reads /usr/lib/sddm/sddm.conf.d, then /etc/sddm.conf.d, then /etc/sddm.conf; the last
+# value wins. Fedora and newer KDE releases may run plasmalogin instead, which is skipped.
 sddm_theme_dir() {
+    have sddm || return 1
     case "$(readlink -f /etc/systemd/system/display-manager.service)" in
     */sddm.service) ;;
     *) return 1 ;;

@@ -70,7 +70,7 @@ preset_seed() {
 # desktops that no longer exist, pointing at old (even deleted) images.
 current_wallpaper() {
     local img
-    img="$(qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
+    img="$("$QDBUS" org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
         var d = desktops(), out = "";
         for (var i = 0; i < d.length; i++) {
             d[i].currentConfigGroup = ["Wallpaper", "org.kde.image", "General"];
@@ -176,7 +176,7 @@ write_matugen_config() {
 
 # $@: matugen source arguments, e.g. `color hex '#3e6fd9'` or `image /path.png`
 render() {
-    have matugen || die "matugen is not installed (run install.sh, or: sudo pacman -S matugen)"
+    have matugen || die "matugen is not installed; run install.sh, or install the 'matugen' package"
     local cfg
     cfg="$(write_matugen_config)"
     NO_COLOR=1 matugen -q -c "$cfg" "$@" -m dark </dev/null ||
@@ -265,7 +265,7 @@ apply_color_scheme() {
 }
 
 reload_kwin() {
-    qdbus6 org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || warn "Could not ask KWin to reload (not in a Plasma session?)"
+    "$QDBUS" org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || warn "Could not ask KWin to reload (not in a Plasma session?)"
 }
 
 # Prints matugen's candidate source colors for an image, most dominant first (at most 5).
@@ -374,6 +374,7 @@ cmd_wallpaper_colors() {
 # Copies the current desktop wallpaper to where the SDDM login screen reads it (set up once by
 # install.sh). Converted to JPEG at most 4K, so any format or wallpaper package works.
 sync_sddm_wallpaper() {
+    sddm_theme_dir >/dev/null || return 0
     [ -d "$SDDM_SHARED_DIR" ] && [ -w "$SDDM_SHARED_DIR" ] || return 0
     local wp img sig
     wp="$(current_wallpaper)" || return 0
@@ -455,10 +456,20 @@ reload_plasma_style() {
     plasma-apply-desktoptheme "$PLASMONK_NAME" >/dev/null
 }
 
-# Better Blur DX replaces KWin's stock Blur (the two conflict, per its README). The window
-# class list is seeded from the upstream README only when you have none, so edits survive.
+# Better Blur DX replaces KWin's stock Blur (the two conflict, per its README). It is a
+# compiled KWin effect we only install on Arch; on Fedora (and anywhere it is absent) the
+# stock Blur effect stays on, which blurs Plasma panels, popups and menus. Blur behind
+# translucent app windows may need a per-window "Blur" rule; see the README.
+# The window class list is seeded from the upstream README only when you have none, so edits survive.
 configure_blur() {
-    [ -f /usr/lib/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ] || return 0
+    if [ ! -f /usr/lib64/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ] &&
+        [ ! -f /usr/lib/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ]; then
+        # No Better Blur DX (Fedora, or Arch without it): the theme's translucent surfaces need
+        # KWin's own Blur, so keep it on and make sure KWin has it loaded.
+        kwriteconfig6 --file kwinrc --group Plugins --key blurEnabled true
+        "$QDBUS" org.kde.KWin /Effects org.kde.kwin.Effects.loadEffect blur >/dev/null 2>&1 || true
+        return 0
+    fi
     kwriteconfig6 --file kwinrc --group Plugins --key blurEnabled false
     kwriteconfig6 --file kwinrc --group Plugins --key better_blur_dxEnabled true
     # Blur behind translucent title bars too (the Aurorae theme marks its area with mask-* elements).
@@ -480,9 +491,9 @@ configure_blur() {
         kwriteconfig6 --file kwinrc --group Effect-better-blur-dx --key WindowClasses "$classes"
     fi
     state_set blur_seeded "$seeded"
-    qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.unloadEffect blur >/dev/null 2>&1 || true
-    qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.loadEffect better_blur_dx >/dev/null 2>&1 || true
-    qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.reconfigureEffect better_blur_dx >/dev/null 2>&1 || true
+    "$QDBUS" org.kde.KWin /Effects org.kde.kwin.Effects.unloadEffect blur >/dev/null 2>&1 || true
+    "$QDBUS" org.kde.KWin /Effects org.kde.kwin.Effects.loadEffect better_blur_dx >/dev/null 2>&1 || true
+    "$QDBUS" org.kde.KWin /Effects org.kde.kwin.Effects.reconfigureEffect better_blur_dx >/dev/null 2>&1 || true
 }
 
 cmd_setup() {
@@ -500,8 +511,10 @@ cmd_setup() {
     info "Selecting Plasmonk components in KDE settings"
     plasma-apply-desktoptheme "$PLASMONK_NAME" >/dev/null || true
     # KWin ships two Aurorae engines; prefer the newer v2 one, which System Settings picks.
+    # Fedora installs Qt plugins under /usr/lib64, Arch under /usr/lib.
     local aurorae=org.kde.kwin.aurorae
-    if [ -f /usr/lib/qt6/plugins/org.kde.kdecoration3/org.kde.kwin.aurorae.v2.so ]; then
+    if [ -f /usr/lib64/qt6/plugins/org.kde.kdecoration3/org.kde.kwin.aurorae.v2.so ] ||
+        [ -f /usr/lib/qt6/plugins/org.kde.kdecoration3/org.kde.kwin.aurorae.v2.so ]; then
         aurorae=org.kde.kwin.aurorae.v2
     fi
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library "$aurorae"
@@ -514,15 +527,15 @@ cmd_setup() {
     kwriteconfig6 --file kdeglobals --group General --key accentColorFromWallpaper false
     kwriteconfig6 --file kdeglobals --group General --key fixed "JetBrainsMono Nerd Font Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
     configure_blur
-    if [ -d "/usr/share/icons/$ICON_THEME" ]; then
+    if [ -d "/usr/share/icons/$ICON_THEME" ] || [ -d "$XDG_DATA_HOME/icons/$ICON_THEME" ]; then
         "$PLASMA_CHANGEICONS" "$ICON_THEME" >/dev/null 2>&1 || warn "Could not switch icons to YAMIS"
     else
-        warn "YAMIS icons are not installed (yamis-icon-theme-git); keeping your icon theme"
+        warn "YAMIS icons are not installed (run install.sh); keeping your icon theme"
     fi
-    if [ -d "/usr/share/icons/$CURSOR_THEME" ]; then
+    if [ -d "/usr/share/icons/$CURSOR_THEME" ] || [ -d "$XDG_DATA_HOME/icons/$CURSOR_THEME" ]; then
         plasma-apply-cursortheme "$CURSOR_THEME" >/dev/null || warn "Could not switch the cursor to $CURSOR_THEME"
     else
-        warn "Cursor theme $CURSOR_THEME is not installed (bibata-cursor-theme-bin)"
+        warn "Cursor theme $CURSOR_THEME is not installed (install it, then re-run: plasmonk setup)"
     fi
     setup_launcher
     setup_terminal
@@ -694,12 +707,13 @@ SHIPPED_PANELS_FILE="$THEME_SRC/panels/layout.js"
 
 # Runs a Plasma script in the running plasmashell and prints its output. $1 = script text
 plasma_eval() {
-    qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "$1"
+    "$QDBUS" org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "$1"
 }
 
 # True if Plasma can load widget $1 (packaged QML widget, user-installed, or compiled in).
 widget_installed() {
     [ -d "/usr/share/plasma/plasmoids/$1" ] || [ -d "$XDG_DATA_HOME/plasma/plasmoids/$1" ] ||
+        [ -f "/usr/lib64/qt6/plugins/plasma/applets/$1.so" ] ||
         [ -f "/usr/lib/qt6/plugins/plasma/applets/$1.so" ]
 }
 
@@ -765,8 +779,8 @@ cmd_doctor() {
     }
 
     while IFS= read -r pkg; do
-        check "package $pkg" pacman -Q "$pkg"
-    done < <(read_list "$ROOT/deps/pacman.txt"; read_list "$ROOT/deps/aur.txt")
+        check "package $pkg" pkg_installed "$pkg"
+    done < <(distro_package_names "$ROOT")
     check "Plasma style installed" test -f "$PLASMA_THEME_DIR/metadata.json"
     check "window decoration installed" test -f "$AURORAE_DIR/close.svg"
     check "Kvantum theme rendered" test -f "$KVANTUM_DIR/$PLASMONK_NAME.kvconfig"
@@ -776,13 +790,13 @@ cmd_doctor() {
     check "$ZSHRC loads plasmonk.zsh" grep -qxF "$ZSHRC_LINE" "$ZSHRC"
     check "login shell is zsh" test "$(getent passwd "$(id -un)" | cut -d: -f7 | xargs basename)" = zsh
     check "wallpaper watcher enabled" systemctl --user is-enabled plasmonk-wallpaper.path
-    if pacman -Q kwin-effects-better-blur-dx >/dev/null 2>&1; then
-        check "Better Blur DX loaded in KWin" test "$(qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.isEffectLoaded better_blur_dx)" = true
+    if [ "$DISTRO" = arch ] && pkg_installed kwin-effects-better-blur-dx; then
+        check "Better Blur DX loaded in KWin" test "$("$QDBUS" org.kde.KWin /Effects org.kde.kwin.Effects.isEffectLoaded better_blur_dx)" = true
     fi
 
     # Upstream issue #10: Better Blur is compiled against one KWin version and breaks after
     # KWin upgrades. Heuristic: warn when KWin was installed after the effect was built.
-    if pacman -Q kwin-effects-better-blur-dx >/dev/null 2>&1; then
+    if [ "$DISTRO" = arch ] && pkg_installed kwin-effects-better-blur-dx; then
         local built kwin_installed
         built="$(date -d "$(LC_ALL=C pacman -Qi kwin-effects-better-blur-dx | sed -n 's/^Build Date *: //p')" +%s)"
         kwin_installed="$(date -d "$(LC_ALL=C pacman -Qi kwin | sed -n 's/^Install Date *: //p')" +%s)"
