@@ -7,13 +7,20 @@ REPO="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 # shellcheck source=lib/common.sh
 . "$REPO/lib/common.sh"
 
+# A set -e abort otherwise exits silently; say which line and command failed.
+trap 'printf "%s[x]%s uninstall failed at line %s: %s\n" "$_c_err" "$_c_off" "$LINENO" "$BASH_COMMAND" >&2' ERR
+
 usage() {
     cat <<'EOF'
 Usage: ./uninstall.sh [options]
 
-  --remove-packages  Also uninstall the packages listed in deps/ (asks pacman to confirm)
+  --remove-packages  Also uninstall the packages listed in deps/ (your package manager confirms)
   -y, --yes          Do not ask for confirmation
   -h, --help         Show this help
+
+On Fedora, uninstall asks whether to remove the assets Plasmonk installed (oh-my-zsh, YAMIS icons,
+Nerd Font, a cloned zsh plugin) and the COPR repositories it enabled. With --yes they are kept
+unless --remove-packages is also given.
 
 Backups in ~/.local/state/plasmonk/backup are kept.
 EOF
@@ -31,6 +38,10 @@ while [ $# -gt 0 ]; do
 done
 
 refuse_root
+
+# Fedora-only pieces recorded at install time; read now because the state file is removed later.
+fedora_assets="$(state_get fedora_assets)"
+coprs_recorded="$(state_get coprs)"
 
 if [ "$ASSUME_YES" -eq 0 ]; then
     [ -t 0 ] || die "Not running interactively; re-run with --yes."
@@ -98,14 +109,14 @@ if [ -f "$ORIGINAL_SETTINGS" ]; then
     "$PLASMA_CHANGEICONS" "$icons" >/dev/null 2>&1 || true
     cursor="$(kreadconfig6 --file kcminputrc --group Mouse --key cursorTheme --default breeze_cursors)"
     plasma-apply-cursortheme "$cursor" >/dev/null 2>&1 || warn "Could not re-apply cursor theme $cursor"
-    qdbus6 org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || true
+    "$QDBUS" org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || true
     # Swap blur effects back live: Better Blur DX off unless it was on before, stock Blur back on
     # unless it was off before (KWin's default for blur is on).
     if [ "$(kreadconfig6 --file kwinrc --group Plugins --key better_blur_dxEnabled --default false)" != true ]; then
-        qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.unloadEffect better_blur_dx >/dev/null 2>&1 || true
+        "$QDBUS" org.kde.KWin /Effects org.kde.kwin.Effects.unloadEffect better_blur_dx >/dev/null 2>&1 || true
     fi
     if [ "$(kreadconfig6 --file kwinrc --group Plugins --key blurEnabled --default true)" = true ]; then
-        qdbus6 org.kde.KWin /Effects org.kde.kwin.Effects.loadEffect blur >/dev/null 2>&1 || true
+        "$QDBUS" org.kde.KWin /Effects org.kde.kwin.Effects.loadEffect blur >/dev/null 2>&1 || true
     fi
 else
     warn "No record of original settings ($ORIGINAL_SETTINGS); switch theme manually in System Settings."
@@ -247,18 +258,58 @@ if [ "$REMOVE_PACKAGES" -eq 1 ]; then
     pkgs=() kept=()
     login_shell="$(getent passwd "$(id -un)" | cut -d: -f7)"
     while IFS= read -r p; do
-        pacman -Q "$p" >/dev/null 2>&1 || continue
+        pkg_installed "$p" || continue
         if { [ -f "$PREINSTALLED_PACKAGES" ] && grep -qxF "$p" "$PREINSTALLED_PACKAGES"; } ||
             { [ "$p" = zsh ] && [ "$(basename "$login_shell")" = zsh ]; }; then
             kept+=("$p")
         else
             pkgs+=("$p")
         fi
-    done < <(read_list "$REPO/deps/pacman.txt"; read_list "$REPO/deps/aur.txt")
+    done < <(distro_package_names "$REPO")
     [ ${#kept[@]} -eq 0 ] || info "Keeping packages you had before Plasmonk (or your login shell): ${kept[*]}"
     if [ ${#pkgs[@]} -gt 0 ]; then
         info "Removing packages: ${pkgs[*]}"
-        sudo pacman -Rns "${pkgs[@]}"
+        pkg_remove "${pkgs[@]}"
+    fi
+fi
+
+# Fedora: the pieces dnf does not manage (oh-my-zsh, YAMIS icons, Nerd Font, a cloned zsh
+# plugin) and the COPR repositories install.sh enabled. Only what install.sh recorded is
+# touched, so anything you had before Plasmonk stays.
+if [ "$DISTRO" = fedora ] && { [ -n "$fedora_assets" ] || [ -n "$coprs_recorded" ]; }; then
+    remove_assets=0
+    if [ "$ASSUME_YES" -eq 1 ]; then
+        # Non-interactive: only the full cleanup (--remove-packages --yes) removes them.
+        if [ "$REMOVE_PACKAGES" -eq 1 ]; then remove_assets=1; fi
+    elif [ -t 0 ]; then
+        read -r -p "Also remove the assets Plasmonk installed (oh-my-zsh, YAMIS icons, Nerd Font) and the COPR repositories it enabled? [y/N] " reply
+        if [[ "$reply" =~ ^[Yy] ]]; then remove_assets=1; fi
+    else
+        warn "Not interactive; keeping the cloned assets and COPR repositories (re-run in a terminal to remove them)."
+    fi
+    if [ "$remove_assets" -eq 1 ]; then
+        for a in $fedora_assets; do
+            case "$a" in
+            oh-my-zsh) safe_remove "$HOME/.oh-my-zsh" ;;
+            history-substring-search)
+                safe_remove "$XDG_CONFIG_HOME/zsh/plugins/zsh-history-substring-search"
+                rmdir "$XDG_CONFIG_HOME/zsh/plugins" >/dev/null 2>&1 || true
+                ;;
+            yamis)
+                safe_remove "$XDG_DATA_HOME/icons/yet-another-monochrome-icon-set"
+                rmdir "$XDG_DATA_HOME/icons" >/dev/null 2>&1 || true
+                ;;
+            nerd-font)
+                safe_remove "$XDG_DATA_HOME/fonts/JetBrainsMonoNerdFont"
+                rmdir "$XDG_DATA_HOME/fonts" >/dev/null 2>&1 || true
+                fc-cache -f >/dev/null 2>&1 || true
+                ;;
+            esac
+        done
+        for c in $coprs_recorded; do
+            info "Removing COPR $c"
+            sudo dnf copr remove -y "$c" >/dev/null 2>&1 || warn "Could not remove COPR $c"
+        done
     fi
 fi
 safe_remove "$PREINSTALLED_PACKAGES"

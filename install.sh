@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Plasmonk installer for Arch-based systems (Arch, CachyOS, EndeavourOS, ...) running KDE Plasma 6.
+# Plasmonk installer for Arch-based systems (Arch, CachyOS, EndeavourOS, ...) and Fedora,
+# running KDE Plasma 6.
 #
 # 1. Checks the system and lists every package it will install, before changing anything.
-# 2. Installs missing packages (pacman for official repos, paru or yay for the AUR).
+# 2. Installs missing packages (pacman + paru/yay on Arch; dnf + COPR on Fedora).
 # 3. Backs up the KDE settings it is about to change.
 # 4. Installs Plasmonk into your home folder and applies a color preset.
 set -euo pipefail
@@ -10,6 +11,9 @@ set -euo pipefail
 REPO="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 # shellcheck source=lib/common.sh
 . "$REPO/lib/common.sh"
+
+# A set -e abort otherwise exits silently; say which line and command failed.
+trap 'printf "%s[x]%s install failed at line %s: %s\n" "$_c_err" "$_c_off" "$LINENO" "$BASH_COMMAND" >&2' ERR
 
 usage() {
     cat <<'EOF'
@@ -55,47 +59,178 @@ confirm() {
     [[ -z "$reply" || "$reply" =~ ^[Yy] ]]
 }
 
+# Fedora-only sources: COPR packages, plus the pieces Fedora does not package
+# (oh-my-zsh, zsh-history-substring-search, YAMIS icons, JetBrains Mono Nerd Font).
+install_fedora_extras() {
+    local entry project pkgs tmp enabled_coprs
+
+    # Packages from COPRs. A COPR already enabled is left alone (not recorded), so uninstall
+    # never removes a repository the user had before Plasmonk.
+    enabled_coprs="$(dnf copr list 2>/dev/null || true)"
+    for entry in "${missing_copr[@]}"; do
+        project="${entry%%:*}" pkgs="${entry#*:}"
+        if ! grep -qE "/$project$" <<<"$enabled_coprs"; then
+            info "Enabling COPR $project"
+            sudo dnf copr enable -y "$project" >/dev/null
+            state_add coprs "$project"
+        fi
+        info "Installing from COPR $project: $pkgs"
+        # shellcheck disable=SC2086  # $pkgs is a deliberate word list
+        sudo dnf install -y $pkgs
+    done
+
+    # oh-my-zsh: the official installer puts it in ~/.oh-my-zsh (Fedora has no package).
+    if [ ! -d "$HOME/.oh-my-zsh" ]; then
+        info "Installing oh-my-zsh into ~/.oh-my-zsh"
+        tmp="$(mktemp)"
+        if download https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh "$tmp"; then
+            if RUNZSH=no CHSH=no sh "$tmp" --unattended --keep-zshrc; then
+                state_add fedora_assets oh-my-zsh
+            else
+                warn "oh-my-zsh installer failed"
+            fi
+        else
+            warn "Could not download the oh-my-zsh installer"
+        fi
+        rm -f -- "$tmp"
+    fi
+
+    # zsh-history-substring-search: Fedora does not package it; clone it for plasmonk.zsh.
+    local hs="$XDG_CONFIG_HOME/zsh/plugins/zsh-history-substring-search"
+    if [ ! -d "$hs" ]; then
+        info "Cloning zsh-history-substring-search"
+        mkdir -p "$(dirname "$hs")"
+        if git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search "$hs"; then
+            state_add fedora_assets history-substring-search
+        else
+            warn "Could not clone zsh-history-substring-search"
+        fi
+    fi
+
+    # YAMIS icons: an asset theme, copied into the user icon folder.
+    local yamis="$XDG_DATA_HOME/icons/yet-another-monochrome-icon-set"
+    if [ ! -d "$yamis" ]; then
+        info "Installing YAMIS icons"
+        mkdir -p "$XDG_DATA_HOME/icons"
+        tmp="$(mktemp -d)"
+        if git clone --depth 1 https://bitbucket.org/dirn-typo/yet-another-monochrome-icon-set "$tmp/yamis"; then
+            rm -rf -- "$yamis"
+            mv "$tmp/yamis" "$yamis"
+            state_add fedora_assets yamis
+        else
+            warn "Could not clone the YAMIS icon theme"
+        fi
+        rm -rf -- "$tmp"
+    fi
+
+    install_nerd_font
+}
+
+# JetBrains Mono Nerd Font: Fedora has no package, so take the official Nerd Fonts release.
+install_nerd_font() {
+    if fc-list 2>/dev/null | grep -qi 'JetBrainsMono Nerd Font'; then return 0; fi
+    local dir="$XDG_DATA_HOME/fonts/JetBrainsMonoNerdFont" tmp
+    info "Installing JetBrains Mono Nerd Font into $dir"
+    mkdir -p "$dir"
+    tmp="$(mktemp -d)"
+    if download https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip "$tmp/jb.zip"; then
+        if have unzip && unzip -o -q "$tmp/jb.zip" -d "$dir"; then
+            fc-cache -f "$dir" >/dev/null 2>&1 || true
+            state_add fedora_assets nerd-font
+        else
+            warn "Could not unzip the Nerd Font; install it from https://www.nerdfonts.com/font-downloads"
+        fi
+    else
+        warn "Could not download the Nerd Font; install it from https://www.nerdfonts.com/font-downloads"
+    fi
+    rm -rf -- "$tmp"
+}
+
 # ---------- 1. checks ----------
 
 refuse_root
-have pacman || die "This installer supports Arch-based systems only (pacman not found)."
 have plasmashell || die "KDE Plasma is not installed."
 plasma_major="$(plasmashell --version | grep -oE '[0-9]+' | sed -n 1p)"
 [ "${plasma_major:-0}" -ge 6 ] || die "Plasma 6 is required (found: $(plasmashell --version))."
 [ "${XDG_CURRENT_DESKTOP:-}" = KDE ] || warn "You don't seem to be in a Plasma session; settings will apply on next login."
 
-AUR_HELPER=""
-for h in paru yay; do
-    if have "$h"; then AUR_HELPER="$h"; break; fi
-done
+case "$DISTRO" in
+arch) have pacman || die "pacman was not found." ;;
+fedora) have dnf || die "dnf was not found." ;;
+*) die "Unsupported distribution: neither pacman nor dnf was found. This installer supports Arch-based and Fedora systems." ;;
+esac
 
-missing_repo=() missing_aur=()
+# The login-screen wallpaper step is SDDM-only. Detect it once for both the plan and step 2b;
+# on Fedora 45+ KDE the display manager is plasmalogin, so this is empty there.
+sddm_dir="$(sddm_theme_dir || true)"
+
+AUR_HELPER=""
+if [ "$DISTRO" = arch ]; then
+    for h in paru yay; do
+        if have "$h"; then AUR_HELPER="$h"; break; fi
+    done
+fi
+
+missing_repo=() missing_aur=() missing_copr=()
 if [ "$SKIP_PACKAGES" -eq 0 ]; then
-    while IFS= read -r p; do pacman -Q "$p" >/dev/null 2>&1 || missing_repo+=("$p"); done < <(read_list "$REPO/deps/pacman.txt")
-    while IFS= read -r p; do pacman -Q "$p" >/dev/null 2>&1 || missing_aur+=("$p"); done < <(read_list "$REPO/deps/aur.txt")
+    case "$DISTRO" in
+    arch)
+        while IFS= read -r p; do pkg_installed "$p" || missing_repo+=("$p"); done < <(read_list "$REPO/deps/pacman.txt")
+        while IFS= read -r p; do pkg_installed "$p" || missing_aur+=("$p"); done < <(read_list "$REPO/deps/aur.txt")
+        ;;
+    fedora)
+        while IFS= read -r p; do pkg_installed "$p" || missing_repo+=("$p"); done < <(read_list "$REPO/deps/fedora.txt")
+        while IFS= read -r line; do
+            [ -n "$line" ] || continue
+            project="${line%% *}"
+            pkgs="${line#* }"
+            need=0
+            for p in $pkgs; do pkg_installed "$p" || need=1; done
+            [ "$need" -eq 0 ] || missing_copr+=("$project:$pkgs")
+        done < <(read_list "$REPO/deps/fedora-copr.txt")
+        ;;
+    esac
 fi
 
 echo
 info "Plasmonk will:"
 if [ ${#missing_repo[@]} -gt 0 ]; then
-    echo "    - install from official repos (sudo pacman): ${missing_repo[*]}"
+    case "$DISTRO" in
+    arch) echo "    - install from official repos (sudo pacman): ${missing_repo[*]}" ;;
+    fedora) echo "    - install from official repos (sudo dnf): ${missing_repo[*]}" ;;
+    esac
 fi
-if [ ${#missing_aur[@]} -gt 0 ]; then
+if [ "$DISTRO" = arch ] && [ ${#missing_aur[@]} -gt 0 ]; then
     if [ -n "$AUR_HELPER" ]; then
         echo "    - install from the AUR ($AUR_HELPER): ${missing_aur[*]}"
     else
         echo "    - SKIP these AUR packages (no paru/yay found): ${missing_aur[*]}"
     fi
 fi
-[ ${#missing_repo[@]} -gt 0 ] || [ ${#missing_aur[@]} -gt 0 ] || echo "    - install no packages (all present or --skip-packages)"
+if [ "$DISTRO" = fedora ] && [ "$SKIP_PACKAGES" -eq 0 ]; then
+    for entry in "${missing_copr[@]}"; do
+        echo "    - enable COPR ${entry%%:*} and install: ${entry#*:}"
+    done
+    echo "    - install oh-my-zsh, zsh-history-substring-search, YAMIS icons and the JetBrains Mono Nerd Font (GitHub releases)"
+fi
+any_pkg=0
+if [ ${#missing_repo[@]} -gt 0 ]; then any_pkg=1; fi
+if [ "$DISTRO" = arch ] && [ ${#missing_aur[@]} -gt 0 ]; then any_pkg=1; fi
+if [ "$DISTRO" = fedora ] && [ ${#missing_copr[@]} -gt 0 ]; then any_pkg=1; fi
+[ "$any_pkg" -eq 1 ] || echo "    - install no packages (all present or --skip-packages)"
 echo "    - back up the KDE settings it changes to $PLASMONK_BACKUP_ROOT/"
 echo "    - install the theme into $XDG_DATA_HOME and $XDG_CONFIG_HOME, and plasmonk into $PLASMONK_BIN_LINK"
 echo "    - set the Bibata Modern Ice cursor, YAMIS icons, and Ghostty as the default terminal (Ctrl+Alt+T)"
 echo "    - add one line to ~/.zshrc that loads the Plasmonk zsh setup (oh-my-zsh, starship, fastfetch)"
 [ "$KEEP_SHELL" -eq 1 ] || echo "    - offer to make zsh your login shell"
 [ "$PANELS" -eq 0 ] || echo "    - REPLACE all your panels with the saved Plasmonk layout (backed up first)"
-echo "    - show your desktop wallpaper on the SDDM login screen (asks; sudo once)"
-echo "    - enable a user service that follows wallpaper changes (login screen; colors after 'plasmonk apply --wallpaper')"
+if [ -n "$sddm_dir" ]; then
+    echo "    - show your desktop wallpaper on the SDDM login screen (asks; sudo once)"
+else
+    dm_name="$(login_manager || true)"
+    echo "    - skip the login-screen wallpaper (SDDM is not in use${dm_name:+; this system uses $dm_name})"
+fi
+echo "    - enable a user service that follows wallpaper changes ('plasmonk apply --wallpaper' colors, and the SDDM wallpaper when used)"
 echo
 confirm "Continue?" || die "Cancelled; nothing was changed."
 
@@ -105,17 +240,20 @@ confirm "Continue?" || die "Cancelled; nothing was changed."
 if [ ! -f "$PREINSTALLED_PACKAGES" ]; then
     mkdir -p "$PLASMONK_STATE"
     while IFS= read -r p; do
-        if pacman -Q "$p" >/dev/null 2>&1; then echo "$p"; fi
-    done < <(read_list "$REPO/deps/pacman.txt"; read_list "$REPO/deps/aur.txt") >"$PREINSTALLED_PACKAGES"
+        if pkg_installed "$p"; then echo "$p"; fi
+    done < <(distro_package_names "$REPO") >"$PREINSTALLED_PACKAGES"
 fi
 
 if [ ${#missing_repo[@]} -gt 0 ]; then
     info "Installing official packages"
-    sudo pacman -S --needed "${missing_repo[@]}"
+    pkg_install "${missing_repo[@]}"
 fi
-if [ ${#missing_aur[@]} -gt 0 ] && [ -n "$AUR_HELPER" ]; then
+if [ "$DISTRO" = arch ] && [ ${#missing_aur[@]} -gt 0 ] && [ -n "$AUR_HELPER" ]; then
     info "Installing AUR packages with $AUR_HELPER"
     "$AUR_HELPER" -S --needed "${missing_aur[@]}"
+fi
+if [ "$DISTRO" = fedora ] && [ "$SKIP_PACKAGES" -eq 0 ]; then
+    install_fedora_extras
 fi
 have matugen || die "matugen is still missing; it is required to generate colors."
 
@@ -123,7 +261,7 @@ have matugen || die "matugen is still missing; it is required to generate colors
 
 # SDDM's greeter cannot read your home folder. Give it a folder you own that it can read, and
 # point its theme's background there; plasmonk copies your wallpaper into it on every change.
-if sddm_dir="$(sddm_theme_dir)"; then
+if [ -n "$sddm_dir" ]; then
     sddm_conf="$sddm_dir/theme.conf.user"
     # The greeter runs as the sddm user, so the file must be readable by all. A file you cannot
     # read here is one the greeter cannot read either: it needs fixing too.
@@ -226,7 +364,8 @@ else
 fi
 
 if [ "$PANELS" -eq 1 ]; then
-    "$PLASMONK_BIN_LINK" panels restore "$PLASMONK_SHARE/themes/mystical/panels/layout.js" --yes
+    "$PLASMONK_BIN_LINK" panels restore "$PLASMONK_SHARE/themes/mystical/panels/layout.js" --yes ||
+        warn "Could not apply the saved panel layout; run 'plasmonk panels restore' yourself"
 fi
 
 # ---------- 5. login shell ----------
@@ -244,6 +383,14 @@ fi
 
 echo
 ok "Plasmonk is installed."
+if [ -f /usr/lib64/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ] ||
+    [ -f /usr/lib/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ]; then
+    blur_hint="  - Blur: Better Blur DX is enabled for the apps in themes/mystical/better-blur-classes.txt.
+    Add more in System Settings > Window Management > Desktop Effects > Better Blur DX."
+else
+    blur_hint="  - Blur: KWin's stock Blur is in use (Better Blur DX is Arch-only). Tune it in
+    System Settings > Window Management > Desktop Effects > Blur."
+fi
 cat <<EOF
 
 Next steps (manual, per upstream README):
@@ -252,8 +399,7 @@ Next steps (manual, per upstream README):
   - Terminal: Ctrl+Alt+T opens Ghostty. Your own zsh settings go in ~/.config/zsh/user.zsh,
     Ghostty overrides in ~/.config/ghostty/user.conf.
   - Launcher: Meta+Space opens Rofi.
-  - Blur: Better Blur DX is enabled for the apps in themes/mystical/better-blur-classes.txt.
-    Add more in System Settings > Window Management > Desktop Effects > Better Blur DX.
+$blur_hint
   - Panels: the saved layout (top bar + bottom dock) is applied on the first install;
     save your own with 'plasmonk panels save' and bring it back with 'plasmonk panels restore'.
 

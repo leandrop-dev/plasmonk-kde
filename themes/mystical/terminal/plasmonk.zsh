@@ -23,8 +23,10 @@ command -v fastfetch >/dev/null 2>&1 && fastfetch
 _plasmonk_cfg=${XDG_CONFIG_HOME:-$HOME/.config}
 _plasmonk_prompt=${PLASMONK_ZSH_PROMPT:-starship}
 _plasmonk_omz=0
-if [[ -r ${ZSH:-/usr/share/oh-my-zsh}/oh-my-zsh.sh ]]; then
-  export ZSH=${ZSH:-/usr/share/oh-my-zsh}
+# oh-my-zsh: the Fedora install lands in ~/.oh-my-zsh, the Arch package in /usr/share/oh-my-zsh.
+for _plasmonk_zshdir in "${ZSH:-}" "$HOME/.oh-my-zsh" /usr/share/oh-my-zsh; do
+  [[ -n $_plasmonk_zshdir && -r $_plasmonk_zshdir/oh-my-zsh.sh ]] || continue
+  export ZSH=$_plasmonk_zshdir
   export ZSH_CUSTOM=${ZSH_CUSTOM:-$_plasmonk_cfg/zsh/oh-my-zsh}
   DISABLE_AUTO_UPDATE=true
   ZSH_COMPDUMP=${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump
@@ -37,7 +39,9 @@ if [[ -r ${ZSH:-/usr/share/oh-my-zsh}/oh-my-zsh.sh ]]; then
   fi
   source "$ZSH/oh-my-zsh.sh"
   _plasmonk_omz=1
-fi
+  break
+done
+unset _plasmonk_zshdir
 
 if [[ $_plasmonk_prompt != oh-my-zsh || $_plasmonk_omz != 1 ]]; then
   command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
@@ -46,12 +50,19 @@ command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh --cmd cd)"
 command -v mise >/dev/null 2>&1 && eval "$(mise activate zsh)"
 command -v fzf >/dev/null 2>&1 && eval "$(fzf --zsh)"
 
-# fzf walks the tree via fd when present.
+# fzf walks the tree via fd when present (Fedora's fd-find is fd on new releases, fdfind on older ones).
+_plasmonk_fd=
 if command -v fd >/dev/null 2>&1; then
-  export FZF_DEFAULT_COMMAND='fd --hidden --follow --exclude .git'
-  export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
-  export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+  _plasmonk_fd=fd
+elif command -v fdfind >/dev/null 2>&1; then
+  _plasmonk_fd=fdfind
 fi
+if [[ -n $_plasmonk_fd ]]; then
+  export FZF_DEFAULT_COMMAND="$_plasmonk_fd --hidden --follow --exclude .git"
+  export FZF_CTRL_T_COMMAND=$FZF_DEFAULT_COMMAND
+  export FZF_ALT_C_COMMAND="$_plasmonk_fd --type d --hidden --follow --exclude .git"
+fi
+unset _plasmonk_fd
 
 if (( ! _plasmonk_omz )); then
   autoload -Uz compinit
@@ -69,10 +80,13 @@ _plasmonk_source_first() {
   done
   return 1
 }
-_plasmonk_source_first /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh || true
+_plasmonk_source_first /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh \
+  /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh || true
 # history-substring-search must load after syntax-highlighting (per its README).
-_plasmonk_source_first /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh || true
-_plasmonk_source_first /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh || true
+_plasmonk_source_first /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh || true
+_plasmonk_source_first /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh \
+  "$_plasmonk_cfg/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh" || true
 unset -f _plasmonk_source_first
 
 # Highlight colours, rendered from the palette by `plasmonk apply`.

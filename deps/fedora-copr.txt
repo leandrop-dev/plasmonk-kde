@@ -1,0 +1,6 @@
+# Fedora COPR packages: owner/project followed by the packages it provides.
+# The installer enables each project only when one of its packages is missing.
+scottames/ghostty ghostty
+atim/starship starship
+jdxcode/mise mise
+peterwu/rendezvous bibata-cursor-themes

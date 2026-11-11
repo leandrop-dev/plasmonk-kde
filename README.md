@@ -7,8 +7,8 @@ or follow your wallpaper.
 
 ## Install
 
-Requirements: an Arch-based distro (Arch, CachyOS, EndeavourOS, ...), KDE Plasma 6, and `paru` or `yay` for the
-AUR packages.
+Requirements: KDE Plasma 6 and either an Arch-based distro (Arch, CachyOS, EndeavourOS, ...) with `paru` or `yay`
+for the AUR packages, or Fedora (Workstation or KDE), which uses `dnf` and COPR.
 
 ```sh
 git clone <this repo> && cd plasmonk-kde
@@ -29,9 +29,11 @@ Options: `--preset red`, `--opaque-menus`, `--skip-packages`, `--keep-shell`, `-
 
 After installing, log out and back in. Then:
 
-- **Blur:** the installer replaces KWin's stock Blur with *Better Blur DX* (they conflict) and blurs the apps in
-  `themes/mystical/better-blur-classes.txt`. Add more in System Settings → Window Management → Desktop Effects →
-  Better Blur DX. Classes you remove stay removed on reinstall.
+- **Blur:** on Arch the installer replaces KWin's stock Blur with *Better Blur DX* (they conflict) and blurs the apps
+  in `themes/mystical/better-blur-classes.txt`; add more in System Settings → Window Management → Desktop Effects →
+  Better Blur DX. Classes you remove stay removed on reinstall. On Fedora, Better Blur DX is not packaged, so KWin's
+  stock Blur stays on: it blurs Plasma panels, popups and menus, and translucent app windows may need a per-window
+  "Blur" rule.
 
 ### Shortcuts
 
@@ -63,22 +65,27 @@ terminals keep the old one.
 
 ### Packages installed
 
-| Purpose | Package | Source |
+| Purpose | Arch package | Fedora package |
 |---|---|---|
-| Palette generation | `matugen` | official repos |
-| Application style | `kvantum` | official repos |
-| Font (Nerd Font variant, as used in the original video) | `ttf-jetbrains-mono-nerd` | official repos |
-| Launcher (native Wayland since 2.0) | `rofi` | official repos |
-| Terminal | `ghostty` | official repos |
-| Shell, prompt | `zsh`, `starship` | official repos |
-| Shell tools | `zoxide`, `fzf`, `eza`, `fd`, `fastfetch`, `mise` | official repos |
-| zsh plugins | `zsh-autosuggestions`, `zsh-syntax-highlighting`, `zsh-history-substring-search` | official repos |
-| zsh framework | `oh-my-zsh-git` | AUR |
-| Icons (Yet Another Monochrome Icon Set) | `yamis-icon-theme-git` | AUR |
-| Cursor (Bibata Modern Ice) | `bibata-cursor-theme-bin` | AUR |
-| Window blur | `kwin-effects-better-blur-dx` | AUR |
-| Panel widgets used by the saved layout: Audio Visualizer (with `cava`), CatWalk, Thermal Monitor | `plasma6-applets-audio-visualizer`, `plasma6-applets-catwalk`, `plasma6-applets-thermalmonitor` | AUR |
-| Full-screen launcher (installed, not on a panel) | `plasma6-applets-plasma-drawer-git` | AUR |
+| Palette generation | `matugen` (official repos) | `matugen` (dnf) |
+| Application style | `kvantum` (official repos) | `kvantum` (dnf) |
+| Font (Nerd Font variant, as used in the original video) | `ttf-jetbrains-mono-nerd` (official repos) | JetBrainsMono Nerd Font from the official Nerd Fonts release, installed into `~/.local/share/fonts` |
+| Launcher (native Wayland since 2.0) | `rofi` (official repos) | `rofi` (dnf) |
+| Terminal | `ghostty` (official repos) | `ghostty` (COPR `scottames/ghostty`) |
+| Shell, prompt | `zsh`, `starship` (official repos) | `zsh` (dnf), `starship` (COPR `atim/starship`) |
+| Shell tools | `zoxide`, `fzf`, `eza`, `fd`, `fastfetch`, `mise` (official repos) | `zoxide`, `fzf`, `eza`, `fd-find`, `fastfetch` (dnf), `mise` (COPR `jdxcode/mise`) |
+| zsh plugins | `zsh-autosuggestions`, `zsh-syntax-highlighting`, `zsh-history-substring-search` (official repos) | `zsh-autosuggestions`, `zsh-syntax-highlighting` (dnf); `zsh-history-substring-search` cloned into `~/.config/zsh/plugins` |
+| zsh framework | `oh-my-zsh-git` (AUR) | oh-my-zsh official installer (into `~/.oh-my-zsh`) |
+| Icons (Yet Another Monochrome Icon Set) | `yamis-icon-theme-git` (AUR) | cloned from Bitbucket into `~/.local/share/icons` |
+| Cursor (Bibata Modern Ice) | `bibata-cursor-theme-bin` (AUR) | `bibata-cursor-themes` (COPR `peterwu/rendezvous`) |
+| Window blur | `kwin-effects-better-blur-dx` (AUR) | stock KWin Blur (Better Blur DX is Arch-only) |
+| Panel widgets used by the saved layout: Audio Visualizer (with `cava`), CatWalk, Thermal Monitor | `plasma6-applets-audio-visualizer`, `plasma6-applets-catwalk`, `plasma6-applets-thermalmonitor` (AUR) | not installed yet (see below) |
+| Full-screen launcher (installed, not on a panel) | `plasma6-applets-plasma-drawer-git` (AUR) | not installed yet (see below) |
+
+On Fedora the installer uses `dnf` for the base packages and enables the noted COPRs; it lists both and asks
+before changing anything. Better Blur DX is Arch-only: Fedora keeps KWin's stock Blur, which blurs Plasma panels,
+popups and menus but not translucent app windows (add a per-window "Blur" rule for those). The panel widgets are
+not installed on Fedora yet, so the saved layout leaves them out.
 
 ## Usage
 
@@ -146,8 +153,8 @@ and Plasma tooltips, which stay 0.10 more solid than popups as upstream draws th
 
 Ghostty picks changes up on a config reload (ctrl+shift+,); already-running Qt apps after a restart.
 
-Blur strength, brightness, contrast and saturation are Better Blur DX's own settings: System Settings >
-Window Management > Desktop Effects > Better Blur DX.
+On Arch, blur strength, brightness, contrast and saturation are Better Blur DX's own settings: System Settings >
+Window Management > Desktop Effects > Better Blur DX. On Fedora, use the stock Blur effect's settings there instead.
 
 ## Login screen
 
@@ -156,6 +163,10 @@ SDDM show your desktop wallpaper: it creates `/var/lib/plasmonk/sddm`, owned by 
 `background=` in the SDDM theme's `theme.conf.user`. From then on, every wallpaper change is copied there (as a
 JPEG, at most 4K) by the wallpaper watcher, whatever the palette mode. SDDM cannot read your home folder, hence the
 copy. The lock screen's wallpaper is set separately in System Settings > Screen Locking.
+
+This step only runs when SDDM is installed and is the active display manager. Fedora 45+ KDE uses
+plasma-login-manager (`plasmalogin`) instead, whose config has no background key, so the login-screen wallpaper is
+skipped there; `install.sh` says so in its plan.
 
 ## Panel layout
 
@@ -185,6 +196,10 @@ The uninstaller offers to switch your login shell back, restores your previous c
 Starship or fastfetch config you had, and removes Plasmonk's line from `~/.zshrc`. It keeps a Ghostty config you
 edited. `--remove-packages` never removes packages you had before installing Plasmonk.
 
+On Fedora it also asks whether to remove the assets it installed (oh-my-zsh, YAMIS icons, the Nerd Font and a
+cloned zsh plugin) and the COPR repositories it enabled. It only removes what `install.sh` recorded, so anything
+you had before Plasmonk stays; with `--yes` it keeps them unless `--remove-packages` is also given.
+
 ## How it works
 
 | Component | Source | How it gets colors |
@@ -209,11 +224,11 @@ hardcoded colors into ColorScheme classes. It is not needed to install.
 | #19 #20 #21 wrong font link | `ttf-jetbrains-mono-nerd` from the official repos |
 | #22 Better Blur unmaintained · #10 breaks after Plasma updates | Better Blur DX fork; `plasmonk doctor` flags when it needs a rebuild |
 | #11 colors don't apply | Installer turns off custom and wallpaper accent colors so the scheme's accent wins |
-| #25 #26 apt-only installer | Native pacman + AUR installer |
+| #25 #26 apt-only installer | Native pacman + AUR and dnf + COPR installers |
 | #27 no uninstaller | `uninstall.sh`, using that PR's safety rules |
 
-Not addressed: #24 says the original screenshots use YAMIS *for COSMIC*. This installs the KDE YAMIS set from the
-AUR.
+Not addressed: #24 says the original screenshots use YAMIS *for COSMIC*. This installs the KDE YAMIS set (from the
+AUR on Arch, cloned from Bitbucket on Fedora).
 
 ## Credits
 
