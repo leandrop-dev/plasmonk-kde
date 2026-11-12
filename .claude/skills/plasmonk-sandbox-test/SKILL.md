@@ -5,9 +5,10 @@ description: Test bin/plasmonk (apply, setup, menus, opacity, on-wallpaper-chang
 
 # Sandbox-test plasmonk
 
-`lib/common.sh` honors `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME` and `PLASMA_CHANGEICONS`, so pointing
-them (and `HOME`, for `~/.zshrc`) at the scratchpad keeps every file write out of the real home. The commands that
-talk to the running session are replaced with shims that log their arguments.
+`lib/common.sh` honors `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `PLASMA_CHANGEICONS` and `QDBUS`, so
+pointing them (and `HOME`, for `~/.zshrc`) at the scratchpad keeps every file write out of the real home. The
+commands that talk to the running session are replaced with shims that log their arguments. `QDBUS` must be set:
+`common.sh` picks `qdbus-qt6` on Fedora, and without the override it would reach the live KWin and plasmashell.
 
 Write this as a script file in the scratchpad and run it with `bash` (the login shell is zsh, which does not
 word-split the way the snippet expects). The scratchpad can be emptied between turns: recreate the script when it is
@@ -27,7 +28,7 @@ cp "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc" "$SB/config/"   # for
 mkdir -p "$SB/config/vesktop" "$SB/config/zed" "$SB/config/zen/p1"
 printf '[Profile0]\nName=d\nIsRelative=1\nPath=p1\nDefault=1\n' > "$SB/config/zen/profiles.ini"
 export PATH="$SB/shim:$PATH" XDG_CONFIG_HOME="$SB/config" XDG_DATA_HOME="$SB/data" XDG_STATE_HOME="$SB/state" \
-       HOME="$SB/home" PLASMA_CHANGEICONS="$SB/shim/changeicons"
+       HOME="$SB/home" PLASMA_CHANGEICONS="$SB/shim/changeicons" QDBUS="$SB/shim/qdbus6"
 P=/home/leandrop-dev/Projects/plasmonk-kde/bin/plasmonk
 $P setup && $P apply --preset red && $P apply --seed '#22aa66' && $P apply --wallpaper && $P on-wallpaper-change
 $P menus 0.9 && $P menus opaque && $P opacity 0.5
