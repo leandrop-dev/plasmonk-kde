@@ -1,17 +1,79 @@
-# plasmonk-kde
+# Plasmonk
 
-Personal KDE Plasma 6 customizations. The first piece is **Plasmonk**, a recolorable port of
+**A recolorable KDE Plasma 6 theme.** Plasmonk is a port of
 [juxtopposed/Mystical-Blue-Theme](https://github.com/juxtopposed/Mystical-Blue-Theme): the same look, but the
-colors come from [matugen](https://github.com/InioX/matugen), so it can be blue, red, orange, any color you pick,
-or follow your wallpaper.
+colors come from [matugen](https://github.com/InioX/matugen), so the desktop can be blue, red, orange, any color
+you pick, or follow your wallpaper.
+
+![KDE Plasma 6](https://img.shields.io/badge/KDE_Plasma-6-1d99f3)
+![Arch Linux](https://img.shields.io/badge/Arch-AUR-1793d1)
+![Fedora](https://img.shields.io/badge/Fedora-dnf_%2B_COPR-51a2da)
+
+<!--
+Screenshots: add an image to the repo (for example assets/screenshot.png) and replace this comment:
+![Plasmonk desktop](assets/screenshot.png)
+-->
+
+<details>
+<summary>Contents</summary>
+
+- [About](#about)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Install](#install)
+  - [Packages](#packages)
+  - [Fedora notes](#fedora-notes)
+  - [After installing](#after-installing)
+  - [Shortcuts](#shortcuts)
+- [Terminal and shell](#terminal-and-shell)
+- [Usage](#usage)
+- [Apps](#apps)
+- [Translucency](#translucency)
+- [Login screen](#login-screen)
+- [Panel layout](#panel-layout)
+- [Uninstall](#uninstall)
+- [How it works](#how-it-works)
+- [Upstream issues addressed](#upstream-issues-addressed)
+- [Credits](#credits)
+- [License](#license)
+
+</details>
+
+## About
+
+Plasmonk restyles KDE Plasma 6 in one palette and then recolors the whole desktop from a single seed color or
+from your wallpaper. It covers the Plasma style, window decorations, the Kvantum application style, Rofi, the
+terminal, the shell prompt and, when those apps are present, Vesktop, Zed, Zen and Thunderbird.
+
+The installer is per-user: it writes into your home folder, backs up the KDE settings it changes, and ships an
+uninstaller that restores them. It supports Arch-based systems (via pacman and the AUR) and Fedora (via dnf and
+COPR).
+
+## Features
+
+- **Recolor everything from one color.** `plasmonk apply --seed '#8a5cf5'`, a named preset, or the dominant color
+  of your wallpaper. Follow the wallpaper automatically as it changes.
+- **A coherent desktop.** Plasma style, window decoration, Kvantum, Rofi, Ghostty, Konsole and the shell prompt all
+  take their accents from the same palette.
+- **A ready-made terminal.** Ghostty and zsh with oh-my-zsh, autosuggestions, syntax highlighting, zoxide, fzf,
+  mise, eza, Starship and fastfetch, styled with the Plasmonk colors.
+- **App themes** for Vesktop, Zed, Zen and Thunderbird, applied only to apps you already use.
+- **Independent translucency** for windows (`plasmonk opacity`) and for popups and menus (`plasmonk menus`).
+- **A saved panel layout**: a floating top bar and a bottom dock, applied on the first install.
+- **Your wallpaper on the login screen** (SDDM), kept in sync by a user service.
+- **Reversible.** Settings and config files are backed up, and `uninstall.sh` restores them.
+
+## Requirements
+
+- KDE Plasma 6 (KWin).
+- An Arch-based distro (Arch, CachyOS, EndeavourOS, ...) with `paru` or `yay` for the AUR packages, or
+  Fedora (Workstation or KDE), which uses `dnf` and COPR.
 
 ## Install
 
-Requirements: KDE Plasma 6 and either an Arch-based distro (Arch, CachyOS, EndeavourOS, ...) with `paru` or `yay`
-for the AUR packages, or Fedora (Workstation or KDE), which uses `dnf` and COPR.
-
 ```sh
-git clone <this repo> && cd plasmonk-kde
+git clone https://github.com/leandrop-dev/plasmonk-kde.git
+cd plasmonk-kde
 ./install.sh
 ```
 
@@ -22,13 +84,41 @@ The installer lists every package it is going to install and asks before changin
 3. installs the theme into your home folder and applies the blue preset,
 4. sets the Bibata Modern Ice cursor, YAMIS icons, Ghostty as the default terminal and GTK's simple input
    method (dead keys work in Ghostty and other GTK apps),
-5. offers to make zsh your login shell (`chsh`; skip with `--keep-shell`).
+5. offers to make zsh your login shell (`chsh`; skip with `--keep-shell`),
 6. on the first install, replaces your panels with the saved layout (keep yours with `--keep-panels`).
 
 Options: `--preset red`, `--opaque-menus`, `--skip-packages`, `--keep-shell`, `--panels`, `--keep-panels`,
 `--yes`. Run `./install.sh --help`.
 
-After installing, log out and back in. Then:
+### Packages
+
+| Purpose | Arch package | Fedora package |
+|---|---|---|
+| Palette generation | `matugen` (official repos) | `matugen` (dnf) |
+| Application style | `kvantum` (official repos) | `kvantum` (dnf) |
+| Font (Nerd Font variant, as used in the original video) | `ttf-jetbrains-mono-nerd` (official repos) | JetBrainsMono Nerd Font from the official Nerd Fonts release, installed into `~/.local/share/fonts` |
+| Launcher (native Wayland since 2.0) | `rofi` (official repos) | `rofi` (dnf) |
+| Terminal | `ghostty` (official repos) | `ghostty` (COPR `scottames/ghostty`) |
+| Shell, prompt | `zsh`, `starship` (official repos) | `zsh` (dnf), `starship` (COPR `atim/starship`) |
+| Shell tools | `zoxide`, `fzf`, `eza`, `fd`, `fastfetch`, `mise` (official repos) | `zoxide`, `fzf`, `eza`, `fd-find`, `fastfetch` (dnf), `mise` (COPR `jdxcode/mise`) |
+| zsh plugins | `zsh-autosuggestions`, `zsh-syntax-highlighting`, `zsh-history-substring-search` (official repos) | `zsh-autosuggestions`, `zsh-syntax-highlighting` (dnf); `zsh-history-substring-search` cloned into `~/.config/zsh/plugins` |
+| zsh framework | `oh-my-zsh-git` (AUR) | oh-my-zsh official installer (into `~/.oh-my-zsh`) |
+| Icons (Yet Another Monochrome Icon Set) | `yamis-icon-theme-git` (AUR) | cloned from Bitbucket into `~/.local/share/icons` |
+| Cursor (Bibata Modern Ice) | `bibata-cursor-theme-bin` (AUR) | `bibata-cursor-themes` (COPR `peterwu/rendezvous`) |
+| Window blur | `kwin-effects-better-blur-dx` (AUR) | `kwin-effects-better-blur-dx` (COPR `infinality/kwin-effects-better-blur-dx`) |
+| Panel widgets used by the saved layout: Audio Visualizer (with `cava`), CatWalk, Thermal Monitor | `plasma6-applets-audio-visualizer`, `plasma6-applets-catwalk`, `plasma6-applets-thermalmonitor` (AUR) | not installed yet (see below) |
+| Full-screen launcher (installed, not on a panel) | `plasma6-applets-plasma-drawer-git` (AUR) | not installed yet (see below) |
+
+### Fedora notes
+
+On Fedora the installer uses `dnf` for the base packages and enables the noted COPRs; it lists both and asks
+before changing anything. The panel widgets are not installed on Fedora yet, so the saved layout leaves them out.
+If Better Blur DX is missing (for example with `--skip-packages`), KWin's stock Blur stays on: it blurs Plasma
+panels, popups and menus, and translucent app windows may need a per-window "Blur" rule.
+
+### After installing
+
+Log out and back in so every app picks up the Kvantum style and font, the new cursor, and your login shell. Then:
 
 - **Blur:** the installer replaces KWin's stock Blur with *Better Blur DX* (they conflict) and blurs the apps in
   `themes/mystical/better-blur-classes.txt`; add more in System Settings → Window Management → Desktop Effects →
@@ -48,7 +138,7 @@ Keyboard → Shortcuts. Ctrl+Alt+T works by placing local copies of Ghostty's an
 which shadow the system ones. If a Konsole or Ghostty update changes its `.desktop` file, re-run
 `plasmonk setup && plasmonk apply`.
 
-### Terminal and shell
+## Terminal and shell
 
 The terminal setup follows [Ryoku](https://github.com/Ryoku-dev/ryoku)'s, with Plasmonk's colors:
 
@@ -70,30 +160,6 @@ Foreground, cursor, selection, prompt pills and syntax highlighting follow the p
 original Mystical dark grey on every palette, like the panels. The 16 ANSI
 colors keep fixed hues, so red still means an error on every preset. New terminals pick up a new palette; open
 terminals keep the old one.
-
-### Packages installed
-
-| Purpose | Arch package | Fedora package |
-|---|---|---|
-| Palette generation | `matugen` (official repos) | `matugen` (dnf) |
-| Application style | `kvantum` (official repos) | `kvantum` (dnf) |
-| Font (Nerd Font variant, as used in the original video) | `ttf-jetbrains-mono-nerd` (official repos) | JetBrainsMono Nerd Font from the official Nerd Fonts release, installed into `~/.local/share/fonts` |
-| Launcher (native Wayland since 2.0) | `rofi` (official repos) | `rofi` (dnf) |
-| Terminal | `ghostty` (official repos) | `ghostty` (COPR `scottames/ghostty`) |
-| Shell, prompt | `zsh`, `starship` (official repos) | `zsh` (dnf), `starship` (COPR `atim/starship`) |
-| Shell tools | `zoxide`, `fzf`, `eza`, `fd`, `fastfetch`, `mise` (official repos) | `zoxide`, `fzf`, `eza`, `fd-find`, `fastfetch` (dnf), `mise` (COPR `jdxcode/mise`) |
-| zsh plugins | `zsh-autosuggestions`, `zsh-syntax-highlighting`, `zsh-history-substring-search` (official repos) | `zsh-autosuggestions`, `zsh-syntax-highlighting` (dnf); `zsh-history-substring-search` cloned into `~/.config/zsh/plugins` |
-| zsh framework | `oh-my-zsh-git` (AUR) | oh-my-zsh official installer (into `~/.oh-my-zsh`) |
-| Icons (Yet Another Monochrome Icon Set) | `yamis-icon-theme-git` (AUR) | cloned from Bitbucket into `~/.local/share/icons` |
-| Cursor (Bibata Modern Ice) | `bibata-cursor-theme-bin` (AUR) | `bibata-cursor-themes` (COPR `peterwu/rendezvous`) |
-| Window blur | `kwin-effects-better-blur-dx` (AUR) | `kwin-effects-better-blur-dx` (COPR `infinality/kwin-effects-better-blur-dx`) |
-| Panel widgets used by the saved layout: Audio Visualizer (with `cava`), CatWalk, Thermal Monitor | `plasma6-applets-audio-visualizer`, `plasma6-applets-catwalk`, `plasma6-applets-thermalmonitor` (AUR) | not installed yet (see below) |
-| Full-screen launcher (installed, not on a panel) | `plasma6-applets-plasma-drawer-git` (AUR) | not installed yet (see below) |
-
-On Fedora the installer uses `dnf` for the base packages and enables the noted COPRs; it lists both and asks
-before changing anything. The panel widgets are not installed on Fedora yet, so the saved layout leaves them out.
-If Better Blur DX is missing (for example with `--skip-packages`), KWin's stock Blur stays on: it blurs Plasma
-panels, popups and menus, and translucent app windows may need a per-window "Blur" rule.
 
 ## Usage
 
@@ -142,7 +208,7 @@ Translucent surfaces share one opacity, 0.63 by default, and Better Blur DX blur
 too: the Plasmonk window decoration uses it and `BlurDecorations` is on. Vesktop's transparency only applies
 after quitting it fully (tray icon > Quit) and starting it again.
 
-### Translucency
+## Translucency
 
 Two values, each from 0.20 (see-through) to 1.00 (solid). Setting one re-renders everything.
 
@@ -242,4 +308,13 @@ AUR on Arch, cloned from Bitbucket on Fedora).
 
 ## Credits
 
-See [CREDITS.md](CREDITS.md).
+Plasmonk is built on [Mystical-Blue-Theme](https://github.com/juxtopposed/Mystical-Blue-Theme) by Juxtopposed,
+and its terminal and shell setup is adapted from [Ryoku](https://github.com/Ryoku-dev/ryoku). See
+[CREDITS.md](CREDITS.md) for every upstream asset and its license.
+
+## License
+
+Plasmonk's own scripts and configuration are released under the MIT License; see [LICENSE](LICENSE).
+
+The bundled theme assets keep their upstream licenses, listed in [CREDITS.md](CREDITS.md) and in `licenses/`.
+Those include GPL-3.0 and LGPL components, so check `CREDITS.md` before redistributing.
