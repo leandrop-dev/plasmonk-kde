@@ -221,6 +221,7 @@ if [ "$DISTRO" = fedora ] && [ ${#missing_copr[@]} -gt 0 ]; then any_pkg=1; fi
 echo "    - back up the KDE settings it changes to $PLASMONK_BACKUP_ROOT/"
 echo "    - install the theme into $XDG_DATA_HOME and $XDG_CONFIG_HOME, and plasmonk into $PLASMONK_BIN_LINK"
 echo "    - set the Bibata Modern Ice cursor, YAMIS icons, and Ghostty as the default terminal (Ctrl+Alt+T)"
+echo "    - let GTK apps (Ghostty) compose dead keys (´ \` ~ ^) with GTK's simple input method"
 echo "    - add one line to ~/.zshrc that loads the Plasmonk zsh setup (oh-my-zsh, starship, fastfetch)"
 [ "$KEEP_SHELL" -eq 1 ] || echo "    - offer to make zsh your login shell"
 [ "$PANELS" -eq 0 ] || echo "    - REPLACE all your panels with the saved Plasmonk layout (backed up first)"
@@ -388,7 +389,7 @@ if [ -f /usr/lib64/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ] ||
     blur_hint="  - Blur: Better Blur DX is enabled for the apps in themes/mystical/better-blur-classes.txt.
     Add more in System Settings > Window Management > Desktop Effects > Better Blur DX."
 else
-    blur_hint="  - Blur: KWin's stock Blur is in use (Better Blur DX is Arch-only). Tune it in
+    blur_hint="  - Blur: KWin's stock Blur is in use (Better Blur DX is not installed). Tune it in
     System Settings > Window Management > Desktop Effects > Blur."
 fi
 cat <<EOF

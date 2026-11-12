@@ -51,6 +51,8 @@ AURORAE_DIR="$XDG_DATA_HOME/aurorae/themes/$PLASMONK_NAME"
 KVANTUM_DIR="$XDG_CONFIG_HOME/Kvantum/$PLASMONK_NAME"
 ROFI_DIR="$XDG_CONFIG_HOME/rofi"
 SYSTEMD_USER_DIR="$XDG_CONFIG_HOME/systemd/user"
+ENVIRONMENT_D_DIR="$XDG_CONFIG_HOME/environment.d"
+GTK_IM_CONF="$ENVIRONMENT_D_DIR/10-plasmonk-gtk-im.conf"
 APPLETSRC="$XDG_CONFIG_HOME/plasma-org.kde.plasma.desktop-appletsrc"
 GHOSTTY_DIR="$XDG_CONFIG_HOME/ghostty"
 ZSH_CFG_DIR="$XDG_CONFIG_HOME/zsh"
@@ -102,6 +104,28 @@ pkg_remove() {
     fedora) sudo dnf remove -y "$@" ;;
     *) die "Unsupported distribution: cannot remove packages." ;;
     esac
+}
+
+# Prints the Unix time (seconds) when package $1 was built, or when it was installed.
+# Better Blur DX is compiled against one KWin release, so doctor compares the two.
+pkg_build_epoch() {
+    local d
+    case "$DISTRO" in
+    arch) d="$(LC_ALL=C pacman -Qi "$1" | sed -n 's/^Build Date *: //p')" ;;
+    fedora) d="$(LC_ALL=C rpm -qi "$1" | sed -n 's/^Build Date *: //p')" ;;
+    *) return 1 ;;
+    esac
+    [ -n "$d" ] && date -d "$d" +%s
+}
+
+pkg_install_epoch() {
+    local d
+    case "$DISTRO" in
+    arch) d="$(LC_ALL=C pacman -Qi "$1" | sed -n 's/^Install Date *: //p')" ;;
+    fedora) d="$(LC_ALL=C rpm -qi "$1" | sed -n 's/^Install Date *: //p')" ;;
+    *) return 1 ;;
+    esac
+    [ -n "$d" ] && date -d "$d" +%s
 }
 
 # Downloads URL $1 to file $2 with curl or wget.

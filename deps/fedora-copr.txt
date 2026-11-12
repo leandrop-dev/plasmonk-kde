@@ -1,5 +1,8 @@
 # Fedora COPR packages: owner/project followed by the packages it provides.
 # The installer enables each project only when one of its packages is missing.
+# Better Blur DX is compiled against one KWin release; the COPR rebuilds it after Plasma updates,
+# and `plasmonk doctor` warns when the installed build is older than KWin.
+infinality/kwin-effects-better-blur-dx kwin-effects-better-blur-dx
 scottames/ghostty ghostty
 atim/starship starship
 jdxcode/mise mise

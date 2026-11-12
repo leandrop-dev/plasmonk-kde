@@ -164,6 +164,9 @@ elif [ -f "$GHOSTTY_DIR/config" ]; then
 fi
 safe_remove "$KONSOLE_DATA_DIR/$PLASMONK_NAME.profile"
 safe_remove "$KONSOLE_DATA_DIR/$PLASMONK_NAME.colorscheme"
+# GTK dead keys: setup writes GTK_IM_MODULE=simple for GTK apps such as Ghostty.
+safe_remove "$GTK_IM_CONF"
+rmdir "$ENVIRONMENT_D_DIR" >/dev/null 2>&1 || true
 safe_remove "$ZSH_CFG_DIR/plasmonk.zsh"
 safe_remove "$ZSH_CFG_DIR/plasmonk-colors.zsh"
 rmdir "$ZSH_CFG_DIR" >/dev/null 2>&1 || true   # kept if it holds your user.zsh

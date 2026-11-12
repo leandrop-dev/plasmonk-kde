@@ -20,7 +20,8 @@ The installer lists every package it is going to install and asks before changin
 1. installs the missing packages below,
 2. backs up the KDE settings and config files it changes (`~/.local/state/plasmonk/backup/`),
 3. installs the theme into your home folder and applies the blue preset,
-4. sets the Bibata Modern Ice cursor, YAMIS icons and Ghostty as the default terminal,
+4. sets the Bibata Modern Ice cursor, YAMIS icons, Ghostty as the default terminal and GTK's simple input
+   method (dead keys work in Ghostty and other GTK apps),
 5. offers to make zsh your login shell (`chsh`; skip with `--keep-shell`).
 6. on the first install, replaces your panels with the saved layout (keep yours with `--keep-panels`).
 
@@ -29,11 +30,11 @@ Options: `--preset red`, `--opaque-menus`, `--skip-packages`, `--keep-shell`, `-
 
 After installing, log out and back in. Then:
 
-- **Blur:** on Arch the installer replaces KWin's stock Blur with *Better Blur DX* (they conflict) and blurs the apps
-  in `themes/mystical/better-blur-classes.txt`; add more in System Settings → Window Management → Desktop Effects →
-  Better Blur DX. Classes you remove stay removed on reinstall. On Fedora, Better Blur DX is not packaged, so KWin's
-  stock Blur stays on: it blurs Plasma panels, popups and menus, and translucent app windows may need a per-window
-  "Blur" rule.
+- **Blur:** the installer replaces KWin's stock Blur with *Better Blur DX* (they conflict) and blurs the apps in
+  `themes/mystical/better-blur-classes.txt`; add more in System Settings → Window Management → Desktop Effects →
+  Better Blur DX. Classes you remove stay removed on reinstall. Better Blur DX is compiled against one KWin
+  release: after a Plasma upgrade it can stop working until its package is rebuilt (`plasmonk doctor` says so).
+  If it cannot be installed (e.g. `--skip-packages`), KWin's stock Blur stays on and blurs panels, popups and menus.
 
 ### Shortcuts
 
@@ -58,6 +59,12 @@ The terminal setup follows [Ryoku](https://github.com/Ryoku-dev/ryoku)'s, with P
   `~/.config/zsh/user.zsh`, or anywhere in `~/.zshrc`.
 - **Starship** with Ryoku's pill prompt, and **fastfetch** on every new terminal.
 
+Ghostty is a GTK app, and GTK 4.20+ no longer composes dead keys (`´` `` ` `` `~` `^`) itself on Wayland when no
+input method runs. Plasma does not run one by default, so `plasmonk setup` writes
+`GTK_IM_MODULE=simple` to `~/.config/environment.d/10-plasmonk-gtk-im.conf`, which restores GTK's built-in
+compose handling for every GTK app; it applies at the next login. If you configure IBus or Fcitx, delete that file
+so your input method is used instead.
+
 Foreground, cursor, selection, prompt pills and syntax highlighting follow the palette. The background stays the
 original Mystical dark grey on every palette, like the panels. The 16 ANSI
 colors keep fixed hues, so red still means an error on every preset. New terminals pick up a new palette; open
@@ -78,14 +85,14 @@ terminals keep the old one.
 | zsh framework | `oh-my-zsh-git` (AUR) | oh-my-zsh official installer (into `~/.oh-my-zsh`) |
 | Icons (Yet Another Monochrome Icon Set) | `yamis-icon-theme-git` (AUR) | cloned from Bitbucket into `~/.local/share/icons` |
 | Cursor (Bibata Modern Ice) | `bibata-cursor-theme-bin` (AUR) | `bibata-cursor-themes` (COPR `peterwu/rendezvous`) |
-| Window blur | `kwin-effects-better-blur-dx` (AUR) | stock KWin Blur (Better Blur DX is Arch-only) |
+| Window blur | `kwin-effects-better-blur-dx` (AUR) | `kwin-effects-better-blur-dx` (COPR `infinality/kwin-effects-better-blur-dx`) |
 | Panel widgets used by the saved layout: Audio Visualizer (with `cava`), CatWalk, Thermal Monitor | `plasma6-applets-audio-visualizer`, `plasma6-applets-catwalk`, `plasma6-applets-thermalmonitor` (AUR) | not installed yet (see below) |
 | Full-screen launcher (installed, not on a panel) | `plasma6-applets-plasma-drawer-git` (AUR) | not installed yet (see below) |
 
 On Fedora the installer uses `dnf` for the base packages and enables the noted COPRs; it lists both and asks
-before changing anything. Better Blur DX is Arch-only: Fedora keeps KWin's stock Blur, which blurs Plasma panels,
-popups and menus but not translucent app windows (add a per-window "Blur" rule for those). The panel widgets are
-not installed on Fedora yet, so the saved layout leaves them out.
+before changing anything. The panel widgets are not installed on Fedora yet, so the saved layout leaves them out.
+If Better Blur DX is missing (for example with `--skip-packages`), KWin's stock Blur stays on: it blurs Plasma
+panels, popups and menus, and translucent app windows may need a per-window "Blur" rule.
 
 ## Usage
 
@@ -153,8 +160,9 @@ and Plasma tooltips, which stay 0.10 more solid than popups as upstream draws th
 
 Ghostty picks changes up on a config reload (ctrl+shift+,); already-running Qt apps after a restart.
 
-On Arch, blur strength, brightness, contrast and saturation are Better Blur DX's own settings: System Settings >
-Window Management > Desktop Effects > Better Blur DX. On Fedora, use the stock Blur effect's settings there instead.
+On Arch and Fedora alike, blur strength, brightness, contrast and saturation are Better Blur DX's own settings:
+System Settings > Window Management > Desktop Effects > Better Blur DX. With the stock Blur fallback, they are
+under Blur instead.
 
 ## Login screen
 

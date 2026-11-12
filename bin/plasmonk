@@ -456,16 +456,16 @@ reload_plasma_style() {
     plasma-apply-desktoptheme "$PLASMONK_NAME" >/dev/null
 }
 
-# Better Blur DX replaces KWin's stock Blur (the two conflict, per its README). It is a
-# compiled KWin effect we only install on Arch; on Fedora (and anywhere it is absent) the
-# stock Blur effect stays on, which blurs Plasma panels, popups and menus. Blur behind
-# translucent app windows may need a per-window "Blur" rule; see the README.
+# Better Blur DX replaces KWin's stock Blur (the two conflict, per its README). install.sh
+# takes it from the AUR on Arch and from the infinality COPR on Fedora; without it (e.g.
+# --skip-packages) the stock Blur effect stays on, which blurs Plasma panels, popups and
+# menus. Blur behind translucent app windows may need a per-window "Blur" rule; see the README.
 # The window class list is seeded from the upstream README only when you have none, so edits survive.
 configure_blur() {
     if [ ! -f /usr/lib64/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ] &&
         [ ! -f /usr/lib/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ]; then
-        # No Better Blur DX (Fedora, or Arch without it): the theme's translucent surfaces need
-        # KWin's own Blur, so keep it on and make sure KWin has it loaded.
+        # No Better Blur DX: the theme's translucent surfaces need KWin's own Blur, so keep it
+        # on and make sure KWin has it loaded.
         kwriteconfig6 --file kwinrc --group Plugins --key blurEnabled true
         "$QDBUS" org.kde.KWin /Effects org.kde.kwin.Effects.loadEffect blur >/dev/null 2>&1 || true
         return 0
@@ -539,6 +539,7 @@ cmd_setup() {
     fi
     setup_launcher
     setup_terminal
+    setup_gtk_input_method
     setup_shell
     setup_apps
     sync_sddm_wallpaper
@@ -671,6 +672,32 @@ setup_terminal() {
     fi
 }
 
+# GTK 4.20+ no longer composes dead keys (´ ` ~ ^) itself on Wayland when no input method
+# runs. On Plasma without IBus/Fcitx those keys then produce nothing in GTK apps, Ghostty
+# among them, so tell GTK to use its built-in "simple" input method. A real IME the user has
+# configured (in the session or in environment.d) is left alone.
+setup_gtk_input_method() {
+    local f
+    if [ -n "${GTK_IM_MODULE:-}" ]; then
+        info "GTK_IM_MODULE is already set ($GTK_IM_MODULE); keeping it"
+        return 0
+    fi
+    for f in "$ENVIRONMENT_D_DIR"/*.conf /etc/environment; do
+        if [ -f "$f" ] && [ "$f" != "$GTK_IM_CONF" ] && grep -qs '^[[:space:]]*GTK_IM_MODULE=' "$f"; then
+            info "GTK input method already configured in $f; keeping it"
+            return 0
+        fi
+    done
+    mkdir -p "$ENVIRONMENT_D_DIR"
+    cat >"$GTK_IM_CONF" <<'EOF'
+# Written by Plasmonk. GTK 4.20+ no longer handles dead keys (´ ` ~ ^) itself on Wayland;
+# without an input method those keys produce nothing in GTK apps such as Ghostty. "simple"
+# restores GTK's built-in compose handling. Delete this file if you set up IBus or Fcitx.
+GTK_IM_MODULE=simple
+EOF
+    info "Wrote $GTK_IM_CONF (dead keys in GTK apps; applies at next login)"
+}
+
 # zsh + oh-my-zsh + starship, configured by plasmonk.zsh (adapted from Ryoku). ~/.zshrc only
 # gets one line, so your own .zshrc content stays yours.
 setup_shell() {
@@ -790,18 +817,22 @@ cmd_doctor() {
     check "$ZSHRC loads plasmonk.zsh" grep -qxF "$ZSHRC_LINE" "$ZSHRC"
     check "login shell is zsh" test "$(getent passwd "$(id -un)" | cut -d: -f7 | xargs basename)" = zsh
     check "wallpaper watcher enabled" systemctl --user is-enabled plasmonk-wallpaper.path
-    if [ "$DISTRO" = arch ] && pkg_installed kwin-effects-better-blur-dx; then
+    if pkg_installed kwin-effects-better-blur-dx; then
         check "Better Blur DX loaded in KWin" test "$("$QDBUS" org.kde.KWin /Effects org.kde.kwin.Effects.isEffectLoaded better_blur_dx)" = true
     fi
 
     # Upstream issue #10: Better Blur is compiled against one KWin version and breaks after
     # KWin upgrades. Heuristic: warn when KWin was installed after the effect was built.
-    if [ "$DISTRO" = arch ] && pkg_installed kwin-effects-better-blur-dx; then
-        local built kwin_installed
-        built="$(date -d "$(LC_ALL=C pacman -Qi kwin-effects-better-blur-dx | sed -n 's/^Build Date *: //p')" +%s)"
-        kwin_installed="$(date -d "$(LC_ALL=C pacman -Qi kwin | sed -n 's/^Install Date *: //p')" +%s)"
-        if [ "$kwin_installed" -gt "$built" ]; then
-            warn "KWin was upgraded after Better Blur DX was built; if blur stopped working run: paru -S --rebuild kwin-effects-better-blur-dx"
+    if pkg_installed kwin-effects-better-blur-dx; then
+        local built kwin_installed hint
+        built="$(pkg_build_epoch kwin-effects-better-blur-dx || true)"
+        kwin_installed="$(pkg_install_epoch kwin || true)"
+        if [ -n "$built" ] && [ -n "$kwin_installed" ] && [ "$kwin_installed" -gt "$built" ]; then
+            case "$DISTRO" in
+            arch) hint="paru -S --rebuild kwin-effects-better-blur-dx" ;;
+            fedora) hint="sudo dnf upgrade --refresh kwin-effects-better-blur-dx (the COPR rebuilds for each Plasma release)" ;;
+            esac
+            warn "KWin was upgraded after Better Blur DX was built; if blur stopped working run: $hint"
             problems=$((problems + 1))
         else
             ok "Better Blur DX was built after the installed KWin"

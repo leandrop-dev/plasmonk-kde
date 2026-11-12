@@ -13,11 +13,14 @@ Done (2026-11-11, PR #1 merged into `main` as `0e65754`):
 
 Pending / deferred:
 - Panel widgets referenced by `themes/mystical/panels/layout.js`: `luisbocanegra.audio.visualizer` (needs cava), `org.kde.plasma.catwalk`, `org.kde.olib.thermalmonitor`, plasma-drawer. Build from source or a COPR, then add to the Fedora lists.
-- Better Blur DX on Fedora: stock Blur is used. For blur behind translucent app windows, either build `kwin-effects-better-blur-dx` against `kwin-devel` or add per-window Blur rules.
 - plasmalogin login-screen wallpaper: `/etc/plasmalogin.conf` has no background key; needs research into its theme mechanism.
 - Optional: add `papirus-icon-theme` so YAMIS inherits `Papirus-Dark` instead of warning and falling back to `breeze-dark`.
 
+Done since:
+- Better Blur DX on Fedora: `deps/fedora-copr.txt` enables `infinality/kwin-effects-better-blur-dx`, which builds against the installed KWin (2.6.0 for KWin 6.8.2 on f44/f45 at the time of writing) and installs the same `better_blur_dx.so` the Arch path expects. `configure_blur` now flips stock Blur off on both distros, and `doctor` reads build/install dates from `rpm` on Fedora.
+- GTK dead keys (`´`, `` ` ``, `~`, `^`) on Plasma Wayland: GTK 4.20+ stopped composing them itself when no input method runs (Ghostty is a GTK app). `plasmonk setup` writes `GTK_IM_MODULE=simple` to `~/.config/environment.d/10-plasmonk-gtk-im.conf`, skipped when the session or an environment.d file already sets one; `uninstall.sh` removes it.
+
 Decisions:
 - [firm] Fedora uses dnf + COPR; no AUR helper.
-- [firm] Better Blur DX is Arch-only for now; stock Blur on Fedora.
+- [firm] Better Blur DX comes from the `infinality` COPR on Fedora; stock Blur is only the fallback when the package cannot be installed.
 - [tentative] Panel widgets are a follow-up, not part of the first Fedora pass.
