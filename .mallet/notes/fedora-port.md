@@ -17,8 +17,9 @@ Pending / deferred:
 - Optional: add `papirus-icon-theme` so YAMIS inherits `Papirus-Dark` instead of warning and falling back to `breeze-dark`.
 
 Done since:
-- Better Blur DX on Fedora: `deps/fedora-copr.txt` enables `infinality/kwin-effects-better-blur-dx`, which builds against the installed KWin (2.6.0 for KWin 6.8.2 on f44/f45 at the time of writing) and installs the same `better_blur_dx.so` the Arch path expects. `configure_blur` now flips stock Blur off on both distros, and `doctor` reads build/install dates from `rpm` on Fedora.
+- Better Blur DX on Fedora: `deps/fedora-copr.txt` enables `infinality/kwin-effects-better-blur-dx`, which builds against the installed KWin (2.6.0 for KWin 6.8.2 on f44/f45 at the time of writing) and installs the same `better_blur_dx.so` the Arch path expects. `configure_blur` now flips stock Blur off on both distros, and `doctor` compares the RPM's `Requires: kwin = X` with the installed KWin on Fedora (the Arch path keeps the build/install date heuristic).
 - GTK dead keys (`´`, `` ` ``, `~`, `^`) on Plasma Wayland: GTK 4.20+ stopped composing them itself when no input method runs (Ghostty is a GTK app). `plasmonk setup` writes `GTK_IM_MODULE=simple` to `~/.config/environment.d/10-plasmonk-gtk-im.conf`, skipped when the session or an environment.d file already sets one; `uninstall.sh` removes it.
+- matugen compatibility: Fedora 45 ships 3.1.0, which has neither `--show-source-colors` nor `--source-color-index` (both arrived in 4.0). plasmonk probes the CLI: on 3.x `wallpaper-colors` lists matugen's single source color (read from `--dry-run --json hex`) and `--color-index` falls back to it with a warning.
 
 Decisions:
 - [firm] Fedora uses dnf + COPR; no AUR helper.

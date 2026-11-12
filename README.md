@@ -52,8 +52,9 @@ which shadow the system ones. If a Konsole or Ghostty update changes its `.deskt
 
 The terminal setup follows [Ryoku](https://github.com/Ryoku-dev/ryoku)'s, with Plasmonk's colors:
 
-- **Ghostty**, translucent and blurred, with the Plasmonk title bar. `~/.config/ghostty/config` is written once and
-  then left to you; put color overrides in `~/.config/ghostty/user.conf`. Konsole gets a matching *Plasmonk* profile.
+- **Ghostty**, translucent and blurred, with the Plasmonk title bar. New windows start at 110x30 cells so
+  fastfetch's layout fits. `~/.config/ghostty/config` is written once and then left to you; put color overrides
+  in `~/.config/ghostty/user.conf`. Konsole gets a matching *Plasmonk* profile.
 - **zsh** with oh-my-zsh, autosuggestions, syntax highlighting, history substring search, zoxide (`cd`), fzf, mise
   and eza (`ls`, `lt`). `~/.zshrc` gets one line that loads `~/.config/zsh/plasmonk.zsh`; your own settings go in
   `~/.config/zsh/user.zsh`, or anywhere in `~/.zshrc`.
@@ -111,8 +112,9 @@ plasmonk doctor                      # checks packages, files, and whether Bette
 
 Your own presets go in `~/.config/plasmonk/presets.conf` (`name=#rrggbb` per line); they survive reinstalls.
 
-matugen finds 1 to 5 candidate colors per image. When the remembered index does not exist for a new wallpaper,
-plasmonk uses the most dominant color and says so.
+matugen 4.x finds 1 to 5 candidate colors per image. When the remembered index does not exist for a new wallpaper,
+plasmonk uses the most dominant color and says so. Fedora 45 ships matugen 3.1.0, which reports only the single
+color it picked: `wallpaper-colors` lists that one, and `--color-index` beyond 0 needs matugen 4.0+.
 
 Already-running Qt apps only switch to new Kvantum colors after a restart. Plasma, window decorations and newly
 opened apps update immediately.

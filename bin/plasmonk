@@ -268,9 +268,31 @@ reload_kwin() {
     "$QDBUS" org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || warn "Could not ask KWin to reload (not in a Plasma session?)"
 }
 
+# matugen 4.0 added --show-source-colors and --source-color-index; 3.x (what Fedora 45 ships)
+# exposes only the single source color it picked. Probe once per run.
+matugen_has_color_index() {
+    if [ -z "${MATUGEN_COLOR_INDEX:-}" ]; then
+        if matugen image --help 2>&1 | grep -q -- '--source-color-index'; then
+            MATUGEN_COLOR_INDEX=1
+        else
+            MATUGEN_COLOR_INDEX=0
+        fi
+    fi
+    [ "$MATUGEN_COLOR_INDEX" = 1 ]
+}
+
+matugen_version() {
+    matugen --version | sed -n 's/^matugen //p'
+}
+
 # Prints matugen's candidate source colors for an image, most dominant first (at most 5).
+# matugen 3.x has one candidate: the source color it chose, reported in its JSON output.
 source_colors() {
-    NO_COLOR=1 matugen image "$1" --show-source-colors </dev/null
+    if matugen_has_color_index; then
+        NO_COLOR=1 matugen image "$1" --show-source-colors </dev/null
+    else
+        NO_COLOR=1 matugen image "$1" --dry-run --json hex </dev/null | jq -r '.colors.source_color.default'
+    fi
 }
 
 # Prints the resolved image file of the current wallpaper, or dies explaining why not.
@@ -328,15 +350,25 @@ cmd_apply() {
         else
             image="$(current_wallpaper_image)"
         fi
-        # Images can have fewer than 5 candidates; fall back to the most dominant one.
-        count="$(source_colors "$image" | grep -c '^#')" || true
-        if [ "$index" -ge "${count:-0}" ]; then
-            warn "This wallpaper has ${count:-0} candidate color(s), none at index $index; using index 0"
-            info "Rendering from wallpaper $image (color 0)"
-            render image "$image" --source-color-index 0
+        # Images can have fewer than 5 candidates; fall back to the most dominant one. matugen
+        # 3.x cannot pick at all, so it sets the theme from its own source color.
+        if matugen_has_color_index; then
+            count="$(source_colors "$image" | grep -c '^#')" || true
+            if [ "$index" -ge "${count:-0}" ]; then
+                warn "This wallpaper has ${count:-0} candidate color(s), none at index $index; using index 0"
+                info "Rendering from wallpaper $image (color 0)"
+                render image "$image" --source-color-index 0
+            else
+                info "Rendering from wallpaper $image (color $index)"
+                render image "$image" --source-color-index "$index"
+            fi
         else
-            info "Rendering from wallpaper $image (color $index)"
-            render image "$image" --source-color-index "$index"
+            if [ "$index" -ne 0 ]; then
+                warn "matugen $(matugen_version) reports one wallpaper color; using it instead of index $index"
+            fi
+            index=0
+            info "Rendering from wallpaper $image (matugen's source color)"
+            render image "$image"
         fi
         state_set color_index "$index"
         state_set image_sig "$(image_signature "$image")"
@@ -368,7 +400,11 @@ cmd_wallpaper_colors() {
         printf '  %d  %s%s%s\n' "$i" "$swatch" "$c" "$([ "$i" != "${in_use:-0}" ] || [ -z "$in_use" ] || echo '   (in use)')"
         i=$((i + 1))
     done < <(source_colors "$image" | grep '^#')
-    echo "Pick one with: plasmonk apply --color-index N"
+    if matugen_has_color_index; then
+        echo "Pick one with: plasmonk apply --color-index N"
+    else
+        echo "matugen $(matugen_version) reports only the color it picked; choosing among candidates needs matugen 4.0+."
+    fi
 }
 
 # Copies the current desktop wallpaper to where the SDDM login screen reads it (set up once by
@@ -821,21 +857,29 @@ cmd_doctor() {
         check "Better Blur DX loaded in KWin" test "$("$QDBUS" org.kde.KWin /Effects org.kde.kwin.Effects.isEffectLoaded better_blur_dx)" = true
     fi
 
-    # Upstream issue #10: Better Blur is compiled against one KWin version and breaks after
-    # KWin upgrades. Heuristic: warn when KWin was installed after the effect was built.
+    # Upstream issue #10: Better Blur is compiled against one KWin release and breaks after
+    # KWin upgrades. Fedora's RPM records that release as "Requires: kwin = X", so compare the
+    # versions; Arch has no such metadata, so warn when KWin was installed after the effect was built.
     if pkg_installed kwin-effects-better-blur-dx; then
-        local built kwin_installed hint
-        built="$(pkg_build_epoch kwin-effects-better-blur-dx || true)"
-        kwin_installed="$(pkg_install_epoch kwin || true)"
-        if [ -n "$built" ] && [ -n "$kwin_installed" ] && [ "$kwin_installed" -gt "$built" ]; then
-            case "$DISTRO" in
-            arch) hint="paru -S --rebuild kwin-effects-better-blur-dx" ;;
-            fedora) hint="sudo dnf upgrade --refresh kwin-effects-better-blur-dx (the COPR rebuilds for each Plasma release)" ;;
-            esac
-            warn "KWin was upgraded after Better Blur DX was built; if blur stopped working run: $hint"
-            problems=$((problems + 1))
+        local built kwin_installed needed current
+        if [ "$DISTRO" = fedora ]; then
+            needed="$(rpm -q --requires kwin-effects-better-blur-dx | sed -n 's/^kwin = //p')"
+            current="$(rpm -q --qf '%{VERSION}' kwin)"
+            if [ -n "$needed" ] && [ "$needed" != "$current" ]; then
+                warn "Better Blur DX was built for KWin $needed but KWin $current is installed; run: sudo dnf upgrade --refresh kwin-effects-better-blur-dx (the COPR rebuilds for each Plasma release)"
+                problems=$((problems + 1))
+            else
+                ok "Better Blur DX matches the installed KWin ($current)"
+            fi
         else
-            ok "Better Blur DX was built after the installed KWin"
+            built="$(pkg_build_epoch kwin-effects-better-blur-dx || true)"
+            kwin_installed="$(pkg_install_epoch kwin || true)"
+            if [ -n "$built" ] && [ -n "$kwin_installed" ] && [ "$kwin_installed" -gt "$built" ]; then
+                warn "KWin was upgraded after Better Blur DX was built; if blur stopped working run: paru -S --rebuild kwin-effects-better-blur-dx"
+                problems=$((problems + 1))
+            else
+                ok "Better Blur DX was built after the installed KWin"
+            fi
         fi
     fi
 

@@ -106,25 +106,19 @@ pkg_remove() {
     esac
 }
 
-# Prints the Unix time (seconds) when package $1 was built, or when it was installed.
-# Better Blur DX is compiled against one KWin release, so doctor compares the two.
+# Prints the Unix time (seconds) of package $1's build or install date from pacman's metadata.
+# doctor uses these on Arch, where nothing records the KWin version Better Blur was built for.
 pkg_build_epoch() {
     local d
-    case "$DISTRO" in
-    arch) d="$(LC_ALL=C pacman -Qi "$1" | sed -n 's/^Build Date *: //p')" ;;
-    fedora) d="$(LC_ALL=C rpm -qi "$1" | sed -n 's/^Build Date *: //p')" ;;
-    *) return 1 ;;
-    esac
+    have pacman || return 1
+    d="$(LC_ALL=C pacman -Qi "$1" | sed -n 's/^Build Date *: //p')"
     [ -n "$d" ] && date -d "$d" +%s
 }
 
 pkg_install_epoch() {
     local d
-    case "$DISTRO" in
-    arch) d="$(LC_ALL=C pacman -Qi "$1" | sed -n 's/^Install Date *: //p')" ;;
-    fedora) d="$(LC_ALL=C rpm -qi "$1" | sed -n 's/^Install Date *: //p')" ;;
-    *) return 1 ;;
-    esac
+    have pacman || return 1
+    d="$(LC_ALL=C pacman -Qi "$1" | sed -n 's/^Install Date *: //p')"
     [ -n "$d" ] && date -d "$d" +%s
 }
 
