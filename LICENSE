@@ -1,3 +1,19 @@
+Licensing
+
+Plasmonk is not distributed under a single license.
+
+Plasmonk's own scripts and configuration (for example install.sh,
+uninstall.sh, bin/, lib/, tools/, systemd/ and presets.conf) are released
+under the MIT License, reproduced below.
+
+The theme assets and templates in themes/ are derived from third-party
+projects and keep their upstream licenses, which include MIT, GPL-3.0 and
+LGPL. See CREDITS.md for the per-file mapping and licenses/ for the full
+texts.
+
+Because the repository combines these licenses, GitHub's license detector
+reports it as "Other" rather than as a single SPDX license.
+
 MIT License
 
 Copyright (c) 2026 Leandro Paixão
@@ -19,11 +35,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Scope
-
-This license covers Plasmonk's own scripts and configuration. The bundled
-theme assets under themes/ and the license texts under licenses/ keep their
-upstream licenses; see CREDITS.md for the per-asset details.

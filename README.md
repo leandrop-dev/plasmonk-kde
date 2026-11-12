@@ -316,5 +316,6 @@ and its terminal and shell setup is adapted from [Ryoku](https://github.com/Ryok
 
 Plasmonk's own scripts and configuration are released under the MIT License; see [LICENSE](LICENSE).
 
-The bundled theme assets keep their upstream licenses, listed in [CREDITS.md](CREDITS.md) and in `licenses/`.
-Those include GPL-3.0 and LGPL components, so check `CREDITS.md` before redistributing.
+The bundled theme assets and templates keep their upstream licenses, listed in [CREDITS.md](CREDITS.md) and in
+`licenses/`. Those include MIT, GPL-3.0 and LGPL components, so check `CREDITS.md` before redistributing. Because
+the repository combines these licenses, GitHub reports it as "Other" rather than as a single SPDX license.
