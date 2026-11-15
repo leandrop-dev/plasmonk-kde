@@ -230,7 +230,8 @@ areas (Kvantum), Ghostty and Konsole, and the Vesktop, Zen and Zed themes. In Do
 top of the window background, so the two layers stack and look more solid than a title bar at the same value.
 
 `plasmonk menus` applies to Plasma popups (app launcher, tray, calendar), Qt app menus and tooltips (Kvantum),
-and Plasma tooltips, which stay 0.10 more solid than popups as upstream draws them. Shadows keep their own values.
+and Plasma tooltips, which stay 0.10 more solid than popups as upstream draws them. Qt/Kvantum menus are drawn
+0.32 more solid than Plasma popups, so right-click context menus stay readable. Shadows keep their own values.
 
 Plasma panels and tooltips use Dolphin's neutral `#101010` background (panels at 88% opacity, tooltips at their
 own value), so they do not pick up the palette's blue tint. The Vesktop theme uses the same neutral greys.

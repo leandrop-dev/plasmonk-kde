@@ -228,8 +228,10 @@ opacity_script() {
     o="$(current_opacity)" m="$(current_menu_opacity)"
     awk -v o="$o" -v m="$m" 'BEGIN {
         t = m + 0.1; if (t > 1) t = 1
+        k = m + 0.32; if (k > 1) k = 1   # Qt/Kvantum menus: more solid than Plasma popups
         printf "s/@PLASMONK_OPACITY@/%s/g; s/@PLASMONK_ALPHA@/%02x/g; ", o, int(o * 255 + 0.5)
-        printf "s/@PLASMONK_MENU_OPACITY@/%s/g; s/@PLASMONK_TOOLTIP_OPACITY@/%.2f/g\n", m, t
+        printf "s/@PLASMONK_MENU_OPACITY@/%s/g; s/@PLASMONK_TOOLTIP_OPACITY@/%.2f/g; ", m, t
+        printf "s/@PLASMONK_KVANTUM_MENU_OPACITY@/%.2f/g\n", k
     }'
 }
 

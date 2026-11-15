@@ -3507,42 +3507,42 @@
     <path
        id="menu-normal-left"
        d="m 0,275 h 5 v 48 H 0 Z"
-       style="color:#000000;opacity:@PLASMONK_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd"
+       style="color:#000000;opacity:@PLASMONK_KVANTUM_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-topleft"
        d="M 5,270 H 0.0011 l -0.001,5 h 5 z"
-       style="color:#000000;opacity:@PLASMONK_MENU_OPACITY@;fill:#1e1e20;fill-rule:evenodd"
+       style="color:#000000;opacity:@PLASMONK_KVANTUM_MENU_OPACITY@;fill:#1e1e20;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-top"
        d="m 53.0003,270 v 5 h -48 v -5 z"
-       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd"
+       style="opacity:@PLASMONK_KVANTUM_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-topright"
        d="m 58,275 -3e-4,-4.9989 -5,-0.001 v 5 z"
-       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#1e1e20;fill-rule:evenodd"
+       style="opacity:@PLASMONK_KVANTUM_MENU_OPACITY@;fill:#1e1e20;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-right"
        d="m 57.9998,275 h -5 v 48 h 5 z"
-       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd"
+       style="opacity:@PLASMONK_KVANTUM_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-bottomright"
        d="m 52.9998,328 h 4.9989 l 10e-4,-5 h -5 z"
-       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#323234;fill-rule:evenodd"
+       style="opacity:@PLASMONK_KVANTUM_MENU_OPACITY@;fill:#323234;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-bottom"
        d="m 5.00075,328 3e-4,-5 h 48 l -3e-4,5 z"
-       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd"
+       style="opacity:@PLASMONK_KVANTUM_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <path
        id="menu-normal-bottomleft"
        d="m 4e-4,323 3e-4,4.9989 5,0.001 v -5 z"
-       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#1e1e20;fill-rule:evenodd"
+       style="opacity:@PLASMONK_KVANTUM_MENU_OPACITY@;fill:#1e1e20;fill-rule:evenodd"
        inkscape:connector-curvature="0" />
     <rect
        id="menu-normal"
@@ -3550,7 +3550,7 @@
        y="275"
        width="48"
        height="48"
-       style="opacity:@PLASMONK_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd" />
+       style="opacity:@PLASMONK_KVANTUM_MENU_OPACITY@;fill:#121212;fill-opacity:1;fill-rule:evenodd" />
     <path
        id="menu-shadow-left"
        d="m 65.00005,275.0001 v 60 h 5 v -60 z"

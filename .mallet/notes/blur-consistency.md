@@ -29,6 +29,8 @@ The `.colors` format is RGB only (no alpha), and there is no Kvantum-equivalent 
 - Neutral surfaces adopted from Dolphin (Kvantum `#101010`): the 9 panel pieces are `#101010` at 0.88 opacity,
   the 9 tooltip pieces are `#101010` (they were `#252525` at 0.6 and `#3a3f4a`), and the Vesktop Midnight theme
   uses neutral greys while keeping the palette's blue accents.
+- Qt/Kvantum menus (Dolphin right-click and similar) use `@PLASMONK_KVANTUM_MENU_OPACITY@` = menu + 0.32
+  (0.85 at the default menu 0.53) so context menus stay readable; Plasma popups stay at the menu value.
 - Finding: the values in `kwinrc` (`BlurStrength=4`, `Brightness=30`, `Contrast=105`, `CornerRadius=15`,
   `Saturation=0`) were written on 2026-11-12 16:50, after the effect had loaded at boot. Nothing reconfigured
   the effect until `plasmonk blur` did, so it ran on Better Blur DX defaults in between. That is why the bars
