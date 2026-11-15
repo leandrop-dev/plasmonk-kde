@@ -1,8 +1,9 @@
-# Blur consistency (Round 2, pinned)
+# Blur consistency and neutral surfaces
 
 Round 1 encoded the live machine's look into the repo (menu opacity 0.53, `kvantum-dark`, blue
-`#0B57A4`, Better Blur DX look + regex window classes, `plasmonk blur`). This note records what was
-deliberately left out so a later session can pick it up.
+`#0B57A4`, Better Blur DX look + regex window classes, `plasmonk blur`), and the follow-up neutralized
+the dark surfaces to Dolphin's greys. This note records what shipped and what is still pinned for a
+later session.
 
 ## Why System Settings still blurs in parts
 
