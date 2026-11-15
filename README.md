@@ -58,7 +58,10 @@ COPR).
 - **A ready-made terminal.** Ghostty and zsh with oh-my-zsh, autosuggestions, syntax highlighting, zoxide, fzf,
   mise, eza, Starship and fastfetch, styled with the Plasmonk colors.
 - **App themes** for Vesktop, Zed, Zen and Thunderbird, applied only to apps you already use.
-- **Independent translucency** for windows (`plasmonk opacity`) and for popups and menus (`plasmonk menus`).
+- **Neutral dark surfaces.** Plasma bars, tooltips and the Vesktop theme use Dolphin's neutral greys, so they
+  match the Qt apps instead of picking up the palette's blue tint.
+- **Independent translucency** for windows (`plasmonk opacity`) and for popups and menus (`plasmonk menus`),
+  plus a managed Better Blur DX look (`plasmonk blur`).
 - **A saved panel layout**: a floating top bar and a bottom dock, applied on the first install.
 - **Your wallpaper on the login screen** (SDDM), kept in sync by a user service.
 - **Reversible.** Settings and config files are backed up, and `uninstall.sh` restores them.
@@ -118,7 +121,8 @@ panels, popups and menus, and translucent app windows may need a per-window "Blu
 
 ### After installing
 
-Log out and back in so every app picks up the Kvantum style and font, the new cursor, and your login shell. Then:
+Log out and back in so every app picks up the Kvantum style (`kvantum-dark`) and font, the new cursor, and your
+login shell. Then:
 
 - **Blur:** the installer replaces KWin's stock Blur with *Better Blur DX* (they conflict) and blurs the apps in
   `themes/mystical/better-blur-classes.txt`; add more in System Settings → Window Management → Desktop Effects →
@@ -172,6 +176,8 @@ plasmonk wallpaper-colors            # list the wallpaper's candidate colors (0 
 plasmonk apply --color-index 1       # use the 2nd candidate; remembered for later wallpapers
 plasmonk menus 0.85                  # popups, menus, tooltips; or: opaque, translucent
 plasmonk opacity 0.73                # title bars, windows, terminals, app themes (see below)
+plasmonk blur                        # show Better Blur DX's strength, brightness, contrast, corner, saturation
+plasmonk blur strength 6             # set one of them; `plasmonk blur default` resets the whole look
 plasmonk status
 plasmonk doctor                      # checks packages, files, and whether Better Blur needs a rebuild
 ```
@@ -189,8 +195,8 @@ Wallpaper following only works with the *Image* wallpaper type. Slideshows are n
 
 ## Apps
 
-If you have used them (their config folder exists), Plasmonk themes these apps with the same rule as the
-desktop: Mystical dark-grey backgrounds, accents from the palette.
+If you have used them (their config folder exists), Plasmonk themes these apps like the desktop: neutral
+dark-grey backgrounds (the same greys as Dolphin) with accents from the palette.
 
 | App | How | Translucent + blurred | Picks up a new palette |
 |---|---|---|---|
@@ -215,8 +221,8 @@ Two values, each from 0.20 (see-through) to 1.00 (solid). Setting one re-renders
 ```sh
 plasmonk opacity          # show the current value (default 0.63)
 plasmonk opacity 0.73     # title bars, windows, terminals, app themes
-plasmonk menus            # show the current value (default 0.80)
-plasmonk menus 0.85       # popups, menus and tooltips; also: opaque (1.00), translucent (0.80)
+plasmonk menus            # show the current value (default 0.53)
+plasmonk menus 0.85       # popups, menus and tooltips; also: opaque (1.00), translucent (0.53)
 ```
 
 `plasmonk opacity` applies to title bars and window frames, Qt app window backgrounds and their file and list
@@ -226,11 +232,15 @@ top of the window background, so the two layers stack and look more solid than a
 `plasmonk menus` applies to Plasma popups (app launcher, tray, calendar), Qt app menus and tooltips (Kvantum),
 and Plasma tooltips, which stay 0.10 more solid than popups as upstream draws them. Shadows keep their own values.
 
+Plasma panels and tooltips use Dolphin's neutral `#101010` background (panels at 88% opacity, tooltips at their
+own value), so they do not pick up the palette's blue tint. The Vesktop theme uses the same neutral greys.
+
 Ghostty picks changes up on a config reload (ctrl+shift+,); already-running Qt apps after a restart.
 
-On Arch and Fedora alike, blur strength, brightness, contrast and saturation are Better Blur DX's own settings:
-System Settings > Window Management > Desktop Effects > Better Blur DX. With the stock Blur fallback, they are
-under Blur instead.
+On Arch and Fedora alike, blur strength, brightness, contrast, corner radius and saturation are set with
+`plasmonk blur`, or by hand in System Settings > Window Management > Desktop Effects > Better Blur DX. The
+Plasmonk defaults are strength 4, brightness 30, contrast 105, corner radius 15 and saturation 0; `plasmonk blur
+default` restores them. With the stock Blur fallback, only BlurStrength applies, under Blur instead.
 
 ## Login screen
 

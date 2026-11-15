@@ -62,7 +62,7 @@ body {
     --remove-bg-layer: on; /* off: no changes, on: remove the base --bg-3 layer for use with window transparency (WILL OVERRIDE BACKGROUND IMAGE) */
     --panel-blur: off; /* off: no changes, on: blur the background of panels */
     --blur-amount: 12px; /* amount of blur */
-    --bg-floating: #25272f; /* set this to a more opaque color if floating panels look too transparent. only applies if panel blur is on  */
+    --bg-floating: #101010; /* set this to a more opaque color if floating panels look too transparent. only applies if panel blur is on  */
 
     /* chatbar options */
     --custom-chatbar: off; /* off: default chatbar, separated: chatbar separated from chat */
@@ -81,17 +81,17 @@ body {
     --text-1: #fcfcfc; /* other normally white text */
     --text-2: #e3e3e3; /* headings and important text */
     --text-3: #dcdcdc; /* normal text */
-    --text-4: #888a9a; /* icon buttons and channels */
-    --text-5: #6f718b; /* muted channels/chats and timestamps */
+    --text-4: #8a8a8c; /* icon buttons and channels */
+    --text-5: #707072; /* muted channels/chats and timestamps */
 
-    /* background and dark colors */
-    --bg-1: #34373f; /* dark buttons when clicked */
-    --bg-2: #2a2c31; /* dark buttons */
-    --bg-3: rgba(37, 39, 47, @PLASMONK_OPACITY@); /* spacing, secondary elements */
-    --bg-4: rgba(28, 28, 35, @PLASMONK_OPACITY@); /* main background color */
-    --hover: rgba(136, 138, 154, 0.1); /* channels and buttons when hovered */
-    --active: rgba(136, 138, 154, 0.2); /* channels and buttons when clicked or selected */
-    --active-2: rgba(136, 138, 154, 0.3); /* extra state for transparent buttons */
+    /* background and dark colors (neutral greys, like Dolphin's Kvantum colors) */
+    --bg-1: #38383a; /* dark buttons when clicked */
+    --bg-2: #2a2a2c; /* dark buttons */
+    --bg-3: rgba(30, 30, 32, @PLASMONK_OPACITY@); /* spacing, secondary elements */
+    --bg-4: rgba(16, 16, 16, @PLASMONK_OPACITY@); /* main background color */
+    --hover: rgba(138, 138, 140, 0.1); /* channels and buttons when hovered */
+    --active: rgba(138, 138, 140, 0.2); /* channels and buttons when clicked or selected */
+    --active-2: rgba(138, 138, 140, 0.3); /* extra state for transparent buttons */
     --message-hover: hsla(220, 0%, 0%, 0.1); /* messages when hovered */
 
     /* accent colors */

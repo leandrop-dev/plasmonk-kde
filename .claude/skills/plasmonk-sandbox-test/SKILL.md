@@ -31,7 +31,7 @@ export PATH="$SB/shim:$PATH" XDG_CONFIG_HOME="$SB/config" XDG_DATA_HOME="$SB/dat
        HOME="$SB/home" PLASMA_CHANGEICONS="$SB/shim/changeicons" QDBUS="$SB/shim/qdbus6"
 P=/home/leandrop-dev/Projects/plasmonk-kde/bin/plasmonk
 $P setup && $P apply --preset red && $P apply --seed '#22aa66' && $P apply --wallpaper && $P on-wallpaper-change
-$P menus 0.9 && $P menus opaque && $P opacity 0.5
+$P menus 0.9 && $P menus opaque && $P opacity 0.5 && $P blur strength 6 && $P blur default
 ```
 
 Then check:
@@ -41,6 +41,8 @@ Then check:
 - `xmllint --noout` passes on every rendered SVG (pipe the `.svgz` files through `zcat ... | xmllint --noout -`).
 - `kreadconfig6`/`grep` on `$SB/config/kwinrc`, `kdeglobals`, `kglobalshortcutsrc` and
   `Kvantum/kvantum.kvconfig` for setup's writes.
+- `plasmonk blur` and `blur default` write the `[Effect-better-blur-dx]` keys (or `[Effect-blur] BlurStrength`
+  when the effect is missing) in `$SB/config/kwinrc`.
 
 Limits:
 - Do not run `install.sh` or `uninstall.sh` here. `systemctl --user` and `sudo` act on the real system regardless of

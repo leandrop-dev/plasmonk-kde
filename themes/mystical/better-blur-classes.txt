@@ -1,25 +1,21 @@
-# Window classes Better Blur DX blurs (one per line), from the upstream Mystical-Blue README.
-# plasmonk setup writes this list only if you have not configured one yet.
+# Window classes Better Blur DX blurs (one per line). Short names are Qt Widgets apps;
+# QML apps report an org.kde.* class, so the regex below covers all of them at once.
 dolphin
 systemsettings
-zen
-app.zen_browser.zen
 plasmashell
 konsole
 kvantummanager
-org.kde.spectacle
+kate
 discord
 org.inkscape.Inkscape
 Yad
-kate
-org.kde.plasma-systemmonitor
-org.kde.ark
-org.kde.discover
-org.kde.haruna
 rofi
 spotify
 steam
-# Plasmonk additions
 com.mitchellh.ghostty
 vesktop
 dev.zed.Zed
+/^org\.kde\..*/
+zen
+app.zen_browser.zen
+zendo

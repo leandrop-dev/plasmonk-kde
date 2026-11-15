@@ -12,11 +12,17 @@ TEMPLATES="$THEME_SRC/templates"
 PRESETS_FILE="$ROOT/presets.conf"
 DEFAULT_PRESET="blue"
 DEFAULT_OPACITY="0.63"   # translucency of title bars, windows and terminals; see `plasmonk opacity`
-DEFAULT_MENU_OPACITY="0.80"   # popups, menus and tooltips (upstream value); see `plasmonk menus`
+DEFAULT_MENU_OPACITY="0.53"   # popups, menus and tooltips; see `plasmonk menus`
 AURORAE_BUTTONS=(close maximize restore minimize keepabove keepbelow alldesktops)
 CURSOR_THEME="Bibata-Modern-Ice"
 ICON_THEME="yet-another-monochrome-icon-set"   # YAMIS, from the upstream README
 ANIMATION_SPEED="0.25"   # kdeglobals AnimationDurationFactor: 4x faster than KDE's default 1.0
+# Better Blur DX's look; see `plasmonk blur`. The stock Blur effect only has BlurStrength.
+BLUR_STRENGTH=4
+BLUR_BRIGHTNESS=30
+BLUR_CONTRAST=105
+BLUR_CORNER_RADIUS=15
+BLUR_SATURATION=0
 
 usage() {
     cat <<'EOF'
@@ -32,9 +38,11 @@ Usage: plasmonk <command> [options]
   wallpaper-colors [PATH]     List the candidate colors of the current wallpaper (or PATH)
   presets                     List presets
   menus [VALUE]               Show or set the translucency of popups, menus and tooltips:
-                              0.20 .. 1.00, default 0.80; opaque = 1.00, translucent = 0.80
+                              0.20 .. 1.00, default 0.53; opaque = 1.00, translucent = 0.53
   opacity [VALUE]             Show or set the translucency of title bars, windows, terminals
                               and app themes: 0.20 (see-through) .. 1.00 (solid), default 0.63
+  blur [KEY [VALUE]]          Show or set Better Blur DX's look (strength, brightness, contrast,
+                              corner, saturation); `blur default` resets it
   panels save [FILE]          Save the current panels and their widgets as a layout script
                               (default: ~/.config/plasmonk/panels.js)
   panels restore [FILE] [-y]  Replace all current panels with a saved layout (default: your
@@ -461,6 +469,100 @@ cmd_status() {
     echo "menus:  $(current_menu_opacity)"
 }
 
+# ---------- blur ----------
+
+# Better Blur DX's look: strength, brightness, contrast, corner radius and saturation. Overrides
+# live in the state file (blur_*), the constants above are the defaults. KWin's stock Blur only
+# has BlurStrength, so the other four keys are ignored when Better Blur DX is not installed.
+has_better_blur_dx() {
+    [ -f /usr/lib64/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ] ||
+        [ -f /usr/lib/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ]
+}
+
+blur_state_key() {
+    case "$1" in
+    strength) echo blur_strength ;;
+    brightness) echo blur_brightness ;;
+    contrast) echo blur_contrast ;;
+    corner) echo blur_corner_radius ;;
+    saturation) echo blur_saturation ;;
+    esac
+}
+
+blur_config_key() {
+    case "$1" in
+    strength) echo BlurStrength ;;
+    brightness) echo Brightness ;;
+    contrast) echo Contrast ;;
+    corner) echo CornerRadius ;;
+    saturation) echo Saturation ;;
+    esac
+}
+
+blur_default() {
+    case "$1" in
+    strength) echo "$BLUR_STRENGTH" ;;
+    brightness) echo "$BLUR_BRIGHTNESS" ;;
+    contrast) echo "$BLUR_CONTRAST" ;;
+    corner) echo "$BLUR_CORNER_RADIUS" ;;
+    saturation) echo "$BLUR_SATURATION" ;;
+    esac
+}
+
+# Prints one key's effective value: the state override, else the default.
+current_blur() {
+    local v
+    v="$(state_get "$(blur_state_key "$1")")"
+    printf '%s\n' "${v:-$(blur_default "$1")}"
+}
+
+apply_blur_look() {
+    local k
+    if has_better_blur_dx; then
+        for k in strength brightness contrast corner saturation; do
+            kwriteconfig6 --file kwinrc --group Effect-better-blur-dx \
+                --key "$(blur_config_key "$k")" "$(current_blur "$k")"
+        done
+        "$QDBUS" org.kde.KWin /Effects org.kde.kwin.Effects.reconfigureEffect better_blur_dx >/dev/null 2>&1 || true
+    else
+        kwriteconfig6 --file kwinrc --group Effect-blur --key BlurStrength "$(current_blur strength)"
+        "$QDBUS" org.kde.KWin /Effects org.kde.kwin.Effects.reconfigureEffect blur >/dev/null 2>&1 || true
+    fi
+}
+
+cmd_blur() {
+    local arg="${1:-}" val k
+    case "$arg" in
+    "")
+        if has_better_blur_dx; then
+            echo "Better Blur DX:"
+        else
+            echo "KWin Blur (Better Blur DX is not installed; only strength applies):"
+        fi
+        for k in strength brightness contrast corner saturation; do
+            has_better_blur_dx || [ "$k" = strength ] || continue
+            printf '  %-10s %s\n' "$k" "$(current_blur "$k")"
+        done
+        return
+        ;;
+    default)
+        for k in strength brightness contrast corner saturation; do
+            state_set "$(blur_state_key "$k")" ""
+        done
+        apply_blur_look
+        ok "Blur look reset to the Plasmonk defaults"
+        return
+        ;;
+    strength | brightness | contrast | corner | saturation) ;;
+    *) die "Usage: plasmonk blur [default|strength|brightness|contrast|corner|saturation [VALUE]]" ;;
+    esac
+    val="${2:-}"
+    [[ "$val" =~ ^[0-9]+$ ]] || die "Usage: plasmonk blur $arg <NUMBER>"
+    state_set "$(blur_state_key "$arg")" "$val"
+    apply_blur_look
+    ok "Blur $arg is now $val"
+}
+
 # ---------- setup ----------
 
 # Copies the Plasma style, gzipping SVGs to .svgz, with the current popup/tooltip translucency
@@ -498,6 +600,7 @@ reload_plasma_style() {
 # menus. Blur behind translucent app windows may need a per-window "Blur" rule; see the README.
 # The window class list is seeded from the upstream README only when you have none, so edits survive.
 configure_blur() {
+    apply_blur_look
     if [ ! -f /usr/lib64/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ] &&
         [ ! -f /usr/lib/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ]; then
         # No Better Blur DX: the theme's translucent surfaces need KWin's own Blur, so keep it
@@ -557,7 +660,7 @@ cmd_setup() {
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__$PLASMONK_NAME"
     kwriteconfig6 --file kdeglobals --group KDE --key AnimationDurationFactor "$ANIMATION_SPEED"
     kwriteconfig6 --file "$XDG_CONFIG_HOME/Kvantum/kvantum.kvconfig" --group General --key theme "$PLASMONK_NAME"
-    kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle kvantum
+    kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle kvantum-dark
     # Upstream issue #11: a custom or wallpaper accent overrides the scheme's own accent.
     kwriteconfig6 --file kdeglobals --group General --key AccentColor --delete
     kwriteconfig6 --file kdeglobals --group General --key accentColorFromWallpaper false
@@ -834,7 +937,7 @@ panels_undo_hint() {
 # ---------- doctor ----------
 
 cmd_doctor() {
-    local problems=0 pkg
+    local problems=0 pkg k blur_mismatch
 
     check() { # $1 = description, rest = command
         local what="$1"; shift
@@ -855,6 +958,17 @@ cmd_doctor() {
     check "wallpaper watcher enabled" systemctl --user is-enabled plasmonk-wallpaper.path
     if pkg_installed kwin-effects-better-blur-dx; then
         check "Better Blur DX loaded in KWin" test "$("$QDBUS" org.kde.KWin /Effects org.kde.kwin.Effects.isEffectLoaded better_blur_dx)" = true
+        blur_mismatch=""
+        for k in strength brightness contrast corner saturation; do
+            [ "$(kreadconfig6 --file kwinrc --group Effect-better-blur-dx --key "$(blur_config_key "$k")")" = "$(current_blur "$k")" ] ||
+                blur_mismatch+="$k "
+        done
+        if [ -z "$blur_mismatch" ]; then
+            ok "Better Blur DX look is set"
+        else
+            warn "Better Blur DX look differs in: ${blur_mismatch% } (run: plasmonk blur default)"
+            problems=$((problems + 1))
+        fi
     fi
 
     # Upstream issue #10: Better Blur is compiled against one KWin release and breaks after
@@ -901,6 +1015,7 @@ main() {
     presets) cmd_presets ;;
     menus) cmd_menus "$@" ;;
     opacity) cmd_opacity "$@" ;;
+    blur) cmd_blur "$@" ;;
     panels) cmd_panels "$@" ;;
     status) cmd_status ;;
     doctor) cmd_doctor ;;

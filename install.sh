@@ -387,10 +387,11 @@ ok "Plasmonk is installed."
 if [ -f /usr/lib64/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ] ||
     [ -f /usr/lib/qt6/plugins/kwin/effects/plugins/better_blur_dx.so ]; then
     blur_hint="  - Blur: Better Blur DX is enabled for the apps in themes/mystical/better-blur-classes.txt.
-    Add more in System Settings > Window Management > Desktop Effects > Better Blur DX."
+    Add more in System Settings > Window Management > Desktop Effects > Better Blur DX; tune strength,
+    brightness, contrast, corner radius and saturation with 'plasmonk blur'."
 else
     blur_hint="  - Blur: KWin's stock Blur is in use (Better Blur DX is not installed). Tune it in
-    System Settings > Window Management > Desktop Effects > Blur."
+    System Settings > Window Management > Desktop Effects > Blur, or with 'plasmonk blur strength N'."
 fi
 cat <<EOF
 
